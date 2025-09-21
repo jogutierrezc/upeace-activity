@@ -1,0 +1,1124 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Análisis de Causas del Conflicto Arhuaco</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .gradient-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .category-card {
+            background: linear-gradient(145deg, #ffffff, #f8fafc);
+            border: 2px solid #e2e8f0;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .category-card:hover {
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transform: translateY(-5px);
+        }
+        
+        .category-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            transition: background 0.3s ease;
+        }
+        
+        .estructurales::before {
+            background: linear-gradient(90deg, #dc2626, #ef4444);
+        }
+        
+        .impulsores::before {
+            background: linear-gradient(90deg, #ea580c, #f97316);
+        }
+        
+        .desencadenantes::before {
+            background: linear-gradient(90deg, #ca8a04, #eab308);
+        }
+        
+        .manifestaciones::before {
+            background: linear-gradient(90deg, #7c3aed, #8b5cf6);
+        }
+        
+        .audio-controls {
+            background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
+            border: 2px solid #0ea5e9;
+            border-radius: 16px;
+            padding: 20px;
+            margin: 20px 0;
+            position: sticky;
+            top: 20px;
+            z-index: 100;
+            box-shadow: 0 8px 25px rgba(14, 165, 233, 0.15);
+        }
+        
+        .audio-btn {
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 12px 24px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .audio-btn:hover {
+            background: linear-gradient(135deg, #2563eb, #1e40af);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.3);
+        }
+        
+        .audio-btn:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .audio-progress {
+            width: 100%;
+            height: 6px;
+            background: #e2e8f0;
+            border-radius: 3px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        
+        .audio-progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #3b82f6, #1d4ed8);
+            width: 0%;
+            transition: width 0.1s ease;
+        }
+        
+        .example-box {
+            background: linear-gradient(135deg, #f0fff4, #dcfce7);
+            border: 1px solid #22c55e;
+            border-radius: 12px;
+            padding: 16px;
+            margin-top: 16px;
+        }
+        
+        .reading-highlight {
+            background-color: #fef3c7 !important;
+            transition: background-color 0.3s ease;
+            border-radius: 4px;
+            padding: 2px 4px;
+        }
+        
+        .voice-selector {
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-size: 14px;
+            color: #374151;
+        }
+        
+        .speed-control {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .speed-btn {
+            background: #f1f5f9;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            padding: 4px 8px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .speed-btn.active {
+            background: #3b82f6;
+            color: white;
+            border-color: #3b82f6;
+        }
+        
+        .category-icon {
+            font-size: 3rem;
+            margin-bottom: 16px;
+            display: block;
+        }
+        
+        .timeline-item {
+            border-left: 3px solid #e2e8f0;
+            position: relative;
+            padding-left: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -6px;
+            top: 8px;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #3b82f6;
+        }
+        
+        .nav-link {
+            background: #f1f5f9;
+            color: #475569;
+        }
+        
+        .nav-link:hover {
+            background: #e2e8f0;
+            color: #1e293b;
+        }
+        
+        .nav-link.active {
+            background: #3b82f6;
+            color: white;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 min-h-screen">
+    <!-- Header -->
+    <header class="gradient-header shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 py-6">
+            <div class="text-center">
+                <h1 class="text-4xl font-bold mb-2">Análisis de Causas del Conflicto Arhuaco</h1>
+                <p class="text-xl opacity-90">Causas Estructurales y Factores Desencadenantes</p>
+                <p class="text-sm opacity-75 mt-2">Caso: Sentencia SU-419 de 2024 - Metodología ACCP</p>
+            </div>
+        </div>
+    </header>
+
+    <!-- Navigation -->
+    <nav class="bg-white shadow-md border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="flex justify-center space-x-6 py-4 flex-wrap">
+                <a href="contexto_conflicto_arhuaco.html" class="nav-link px-4 py-2 rounded-lg font-semibold transition-colors">
+                    📋 Contexto del Conflicto
+                </a>
+                <a href="mapa_conflicto_arhuaco.html" class="nav-link px-4 py-2 rounded-lg font-semibold transition-colors">
+                    🗺️ Mapa Interactivo
+                </a>
+                <a href="mapa_conflicto_arhuaco.html?page=actor-analysis" class="nav-link px-4 py-2 rounded-lg font-semibold transition-colors">
+                    📊 Análisis de Actores
+                </a>
+                <a href="analisis_causas_conflicto.html" class="nav-link active px-4 py-2 rounded-lg font-semibold transition-colors">
+                    🔍 Análisis de Causas
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Audio Controls -->
+    <div class="max-w-7xl mx-auto px-4 mt-6">
+        <div class="audio-controls">
+            <div class="flex flex-wrap items-center justify-between gap-4">
+                <div class="flex items-center gap-4">
+                    <button id="playPauseBtn" class="audio-btn">
+                        <span id="playIcon">🔊</span>
+                        <span id="playText">Reproducir Página</span>
+                    </button>
+                    <button id="stopBtn" class="audio-btn" disabled>
+                        <span>⏹️</span>
+                        <span>Detener</span>
+                    </button>
+                </div>
+                
+                <div class="flex items-center gap-4 flex-wrap">
+                    <div class="speed-control">
+                        <span class="text-sm font-medium text-gray-700">Velocidad:</span>
+                        <button class="speed-btn" data-speed="0.75">0.75x</button>
+                        <button class="speed-btn active" data-speed="1">1x</button>
+                        <button class="speed-btn" data-speed="1.25">1.25x</button>
+                        <button class="speed-btn" data-speed="1.5">1.5x</button>
+                    </div>
+                    
+                    <select id="voiceSelect" class="voice-selector">
+                        <option value="">Voz por defecto</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="audio-progress">
+                <div id="progressBar" class="audio-progress-bar"></div>
+            </div>
+            
+            <div class="text-center">
+                <span id="statusText" class="text-sm text-gray-600">Listo para reproducir</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 py-8" id="mainContent">
+        <!-- Introducción -->
+                <!-- Marco Conceptual -->
+        <section class="bg-white rounded-xl shadow-lg p-8 mb-8">
+            <h2 class="text-3xl font-bold text-gray-800 mb-4">📊 Marco Conceptual del Análisis ACCP</h2>
+            <div class="prose max-w-none">
+                <div class="bg-blue-50 border-l-4 border-blue-400 p-6 mb-6">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-3">3. EXPOSICIÓN DE LOS HECHOS</h3>
+                    <p class="text-gray-700 leading-relaxed">
+                        <strong>Análisis ACCP con la identificación de los hechos a partir de cuatro grupos:</strong>
+                    </p>
+                </div>
+                
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div class="bg-green-50 border-l-4 border-green-400 p-6">
+                        <h4 class="text-lg font-semibold text-gray-800 mb-3">🎯 Primer Paso del ACCP</h4>
+                        <p class="text-gray-700 text-sm leading-relaxed">
+                            Al aplicar la herramienta ACCP al caso Arhuaco, la identificación de los cuatro grupos permite organizar el conflicto de manera exhaustiva, facilitando la comprensión de las dinámicas complejas del conflicto.
+                        </p>
+                    </div>
+                    <div class="bg-purple-50 border-l-4 border-purple-400 p-6">
+                        <h4 class="text-lg font-semibold text-gray-800 mb-3">🔄 Segundo Paso del ACCP</h4>
+                        <p class="text-gray-700 text-sm leading-relaxed">
+                            El segundo paso exige pasar de la simple identificación de hechos a una fase de profundización que permita desentrañar la verdadera naturaleza del conflicto.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Categorías del Análisis ACCP -->
+        <section class="grid gap-8 mb-8">
+            <!-- 3.1 ACTORES -->
+            <div class="category-card estructurales rounded-xl p-8">
+                <div class="text-center mb-6">
+                    <span class="category-icon">👥</span>
+                    <h2 class="text-3xl font-bold text-gray-800 mb-2">3.1. ACTORES</h2>
+                    <p class="text-lg text-gray-600">Identificación de los actores según la Corte Constitucional</p>
+                </div>
+                
+                <div class="prose max-w-none">
+                    <p class="text-gray-700 leading-relaxed mb-4">
+                        <strong>Mamos como autoridades espirituales, líderes políticos en pugna, Ministerio del Interior, Corte Constitucional, Defensoría del Pueblo, Procuraduría y la comunidad Arhuaca en general.</strong> La Corte los reconoce taxativamente así:
+                    </p>
+                </div>
+                
+                <div class="grid gap-4 mt-6">
+                    <div class="timeline-item bg-green-50 border-l-4 border-green-500 p-4">
+                        <h4 class="font-semibold text-gray-800 mb-2">👥 Los Mamos</h4>
+                        <p class="text-sm text-gray-700">Como las autoridades espirituales y políticas supremas, guardianes de la Ley de Origen y llamados a definir la representación legítima del pueblo Arhuaco. Ellos son quienes, conforme al fallo, deben resolver la controversia sobre la designación del cabildo gobernador en ejercicio de su autonomía.</p>
+                    </div>
+                    
+                    <div class="timeline-item bg-blue-50 border-l-4 border-blue-500 p-4">
+                        <h4 class="font-semibold text-gray-800 mb-2">🏛️ El Ministerio del Interior</h4>
+                        <p class="text-sm text-gray-700">Que intervino en la inscripción de autoridades indígenas y al que la Corte le ordena abstenerse de injerencias en los procesos propios, limitándose a garantizar las condiciones materiales para que los Mamos puedan reunirse de manera autónoma y sin presiones externas.</p>
+                    </div>
+                    
+                    <div class="timeline-item bg-purple-50 border-l-4 border-purple-500 p-4">
+                        <h4 class="font-semibold text-gray-800 mb-2">⚖️ La Corte Constitucional</h4>
+                        <p class="text-sm text-gray-700">Que dicta la sentencia y diseña un remedio escalonado con medidas de corto, mediano y largo plazo, orientado a restablecer el autogobierno indígena y devolver la decisión a los Mamos como autoridades espirituales del pueblo Arhuaco.</p>
+                    </div>
+                    
+                    <div class="timeline-item bg-cyan-50 border-l-4 border-cyan-500 p-4">
+                        <h4 class="font-semibold text-gray-800 mb-2">🛡️ Procuraduría y Defensoría</h4>
+                        <p class="text-sm text-gray-700">Expresamente incluidas en los numerales sexto y séptimo de la parte resolutiva, como entidades encargadas de acompañar, verificar el cumplimiento y velar por el respeto de la autonomía indígena durante el proceso de implementación de la sentencia.</p>
+                    </div>
+                    
+                    <div class="timeline-item bg-orange-50 border-l-4 border-orange-500 p-4">
+                        <h4 class="font-semibold text-gray-800 mb-2">🏞️ La comunidad Arhuaca en general</h4>
+                        <p class="text-sm text-gray-700">A quien la Corte reconoce como titular de derechos colectivos, invitando a que, en situaciones de emergencia como la pandemia, se adopten medidas de diálogo y consenso que refuercen la legitimidad de las decisiones comunitarias.</p>
+                    </div>
+                    
+                    <div class="timeline-item bg-red-50 border-l-4 border-red-500 p-4">
+                        <h4 class="font-semibold text-gray-800 mb-2">🏛️ Los líderes políticos en pugna</h4>
+                        <p class="text-sm text-gray-700">Identificados de forma indirecta, pues los informes allegados al expediente y consignados en el Informe sobre proceso autónomo en Simonorwa aclaran que quienes verdaderamente están en conflicto son algunos líderes políticos del pueblo Arhuaco y no los Mamos.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3.2 CONTENIDO -->
+            <div class="category-card precipitantes rounded-xl p-8">
+                <div class="text-center mb-6">
+                    <span class="category-icon">📋</span>
+                    <h2 class="text-3xl font-bold text-gray-800 mb-2">3.2. CONTENIDO</h2>
+                    <p class="text-lg text-gray-600">Núcleo del conflicto y decisiones clave</p>
+                </div>
+                
+                <div class="prose max-w-none">
+                    <p class="text-gray-700 leading-relaxed">
+                        <strong>El conflicto por la legitimidad en la designación del cabildo gobernador y el desconocimiento estatal de la decisión adoptada en Simonorwa.</strong> En cumplimiento de lo ordenado por la Corte, los Mamos realizaron un encuentro autónomo los días 9 y 10 de enero de 2025 en el asentamiento de Simonorwa, Pueblo Bello (Cesar), donde 134 de ellos participaron y decidieron mantener de forma transitoria a Zarwawiko Torres como cabildo gobernador.
+                    </p>
+                </div>
+                
+                <div class="example-box mt-6">
+                    <h4 class="font-semibold text-green-800 mb-2">🌿 Decisión de Simonorwa</h4>
+                    <p class="text-green-700 text-sm leading-relaxed">
+                        Esta decisión, sin embargo, fue cuestionada by algunos sectores y no registrada oficialmente por el Ministerio, generando una nueva crisis de legitimidad que evidencia la persistencia del conflicto entre autonomía indígena e intervención estatal.
+                    </p>
+                </div>
+            </div>
+
+            <!-- 3.3 CONTEXTO -->
+            <div class="category-card agravantes rounded-xl p-8">
+                <div class="text-center mb-6">
+                    <span class="category-icon">🌍</span>
+                    <h2 class="text-3xl font-bold text-gray-800 mb-2">3.3. CONTEXTO</h2>
+                    <p class="text-lg text-gray-600">Circunstancias y condiciones del conflicto</p>
+                </div>
+                
+                <div class="prose max-w-none">
+                    <p class="text-gray-700 leading-relaxed mb-4">
+                        <strong>El proceso de elección del cabildo gobernador se realizó en medio de la emergencia sanitaria por el COVID-19</strong>, lo que limitó la participación de varios asentamientos y afectó el ejercicio pleno de los usos, costumbres y procedimientos tradicionales de los Mamos en los espacios espirituales.
+                    </p>
+                    
+                    <p class="text-gray-700 leading-relaxed">
+                        Adicionalmente, el Ministerio del Interior intervino desconociendo el deber de maximizar la autonomía indígena y de actuar sin daño en un escenario marcado por tensiones internas, todo ello en contravía de la obligación constitucional de garantizar la autonomía, el autogobierno y la integridad cultural del pueblo Arhuaco.
+                    </p>
+                </div>
+                
+                <div class="grid md:grid-cols-2 gap-4 mt-6">
+                    <div class="timeline-item bg-yellow-50 border-l-4 border-yellow-500 p-4">
+                        <h5 class="font-medium text-gray-800">⚠️ Emergencia Sanitaria COVID-19</h5>
+                        <p class="text-sm text-gray-600">Limitaciones para ejercer procedimientos tradicionales y participación completa de asentamientos</p>
+                    </div>
+                    <div class="timeline-item bg-red-50 border-l-4 border-red-500 p-4">
+                        <h5 class="font-medium text-gray-800">🚫 Intervención Estatal Indebida</h5>
+                        <p class="text-sm text-gray-600">Desconocimiento del deber de maximizar autonomía y actuar sin daño</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3.4 PROCESO -->
+            <div class="category-card catalizadores rounded-xl p-8">
+                <div class="text-center mb-6">
+                    <span class="category-icon">⚡</span>
+                    <h2 class="text-3xl font-bold text-gray-800 mb-2">3.4. PROCESO</h2>
+                    <p class="text-lg text-gray-600">Secuencia de eventos y procedimientos</p>
+                </div>
+                
+                <div class="prose max-w-none">
+                    <p class="text-gray-700 leading-relaxed">
+                        <strong>El conflicto se desarrolló a partir de la elección de cabildo gobernador en el año 2020</strong>, realizada en medio de la emergencia sanitaria por el COVID-19. Posteriormente, el Ministerio del Interior procedió a inscribir a Zarwawiko Torres pese a las tensiones internas existentes en la comunidad, lo que dio lugar a la interposición de una acción de tutela.
+                    </p>
+                </div>
+                
+                <div class="mt-6">
+                    <h4 class="font-semibold text-gray-800 mb-3">📅 Cronología del Proceso:</h4>
+                    <div class="space-y-3">
+                        <div class="timeline-item bg-blue-50 border-l-4 border-blue-500 p-4">
+                            <h5 class="font-medium text-gray-800">2020 - Elección durante COVID-19</h5>
+                            <p class="text-sm text-gray-600">Zarwawiko Torres es elegido en Nabusímake con limitaciones de participación</p>
+                        </div>
+                        <div class="timeline-item bg-orange-50 border-l-4 border-orange-500 p-4">
+                            <h5 class="font-medium text-gray-800">2020 - Inscripción del Ministerio</h5>
+                            <p class="text-sm text-gray-600">El Ministerio del Interior inscribe a Zarwawiko pese a tensiones internas</p>
+                        </div>
+                        <div class="timeline-item bg-purple-50 border-l-4 border-purple-500 p-4">
+                            <h5 class="font-medium text-gray-800">Interposición de Tutela</h5>
+                            <p class="text-sm text-gray-600">Se presenta acción de tutela por vulneración de derechos fundamentales</p>
+                        </div>
+                        <div class="timeline-item bg-green-50 border-l-4 border-green-500 p-4">
+                            <h5 class="font-medium text-gray-800">2024 - Sentencia SU-419</h5>
+                            <p class="text-sm text-gray-600">La Corte determina vulneración y diseña remedio escalonado devolviendo decisión a los Mamos</p>
+                        </div>
+                        <div class="timeline-item bg-cyan-50 border-l-4 border-cyan-500 p-4">
+                            <h5 class="font-medium text-gray-800">Enero 2025 - Asamblea de Simonorwa</h5>
+                            <p class="text-sm text-gray-600">134 Mamos ratifican transitoriamente a Zarwawiko, pero el Ministerio se niega a registrar</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Segundo Paso del ACCP: Profundización -->
+        <section class="bg-white rounded-xl shadow-lg p-8 mb-8">
+            <div class="text-center mb-6">
+                <span class="text-6xl">🔍</span>
+                <h2 class="text-3xl font-bold text-gray-800 mb-2">5. SEGUNDO PASO DEL ACCP: PROFUNDIZAR</h2>
+                <p class="text-lg text-gray-600">Análisis profundo de la naturaleza del conflicto</p>
+            </div>
+            
+            <div class="prose max-w-none mb-6">
+                <p class="text-gray-700 leading-relaxed">
+                    El segundo paso del ACCP exige pasar de la simple identificación de hechos a una fase de profundización que permita desentrañar la verdadera naturaleza del conflicto. Para ello, es necesario formular preguntas que orienten la reflexión y evidencien que el conflicto no radica en divisiones internas entre los Mamos, quienes han mantenido una posición unificada en torno a la autoridad espiritual, sino en la intervención externa de instituciones estatales que desconocen la legitimidad de dichas decisiones.
+                </p>
+            </div>
+            
+            <div class="bg-yellow-50 border-l-4 border-yellow-400 p-6">
+                <h3 class="text-xl font-semibold text-gray-800 mb-4">🤔 Preguntas de Reflexión</h3>
+                <ul class="space-y-3 text-gray-700">
+                    <li class="flex items-start"><span class="text-yellow-500 mr-2">▶</span> ¿quiénes deben sentarse en la mesa de negociación en ejercicio legítimo de la Ley de Origen y quiénes deben permanecer al margen para evitar injerencias indebidas?</li>
+                    <li class="flex items-start"><span class="text-yellow-500 mr-2">▶</span> ¿la controversia es de carácter político, derivada de disputas de poder, o espiritual, vinculada a la interpretación de los Mamos?</li>
+                    <li class="flex items-start"><span class="text-yellow-500 mr-2">▶</span> ¿qué riesgos para la gobernanza indígena se generan si el Ministerio del Interior persiste en desconocer las decisiones adoptadas autónomamente por el pueblo Arhuaco?</li>
+                    <li class="flex items-start"><span class="text-yellow-500 mr-2">▶</span> ¿qué enseñanzas deja la asamblea de Simonorwa como expresión concreta de derecho propio y como práctica autónoma de solución de conflictos?</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Preguntas Clave por Grupo -->
+        <section class="bg-white rounded-xl shadow-lg p-8 mb-8">
+            <div class="text-center mb-6">
+                <span class="text-6xl">❓</span>
+                <h2 class="text-3xl font-bold text-gray-800 mb-2">6. PREGUNTAS CLAVE POR GRUPO</h2>
+                <p class="text-lg text-gray-600">Análisis específico de cada dimensión del ACCP</p>
+            </div>
+            
+            <div class="grid gap-6">
+                <div class="bg-green-50 border-l-4 border-green-500 p-6">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-3">6.1. Actores</h3>
+                    <p class="text-gray-700 leading-relaxed">
+                        ¿Qué actores deben participar directamente en la mesa de deliberación como los Mamos en ejercicio de la Ley de Origen y cuáles deben permanecer al margen para evitar injerencias indebidas, como ciertos líderes políticos o funcionarios estatales?
+                    </p>
+                </div>
+                
+                <div class="bg-blue-50 border-l-4 border-blue-500 p-6">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-3">6.2. Contenido</h3>
+                    <p class="text-gray-700 leading-relaxed">
+                        ¿Cuáles son los asuntos principales que concentran el conflicto, como la autonomía indígena y el reconocimiento estatal de las autoridades legítimas, y cuáles constituyen temas secundarios, como las formalidades administrativas del registro?
+                    </p>
+                </div>
+                
+                <div class="bg-purple-50 border-l-4 border-purple-500 p-6">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-3">6.3. Contexto</h3>
+                    <p class="text-gray-700 leading-relaxed">
+                        ¿Qué oportunidades ofrece la Sentencia SU-419 de 2024 para fortalecer y blindar el autogobierno del pueblo Arhuaco, y qué riesgos implica la resistencia del Ministerio del Interior a registrar las decisiones autónomas adoptadas por los Mamos?
+                    </p>
+                </div>
+                
+                <div class="bg-orange-50 border-l-4 border-orange-500 p-6">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-3">6.4. Proceso</h3>
+                    <p class="text-gray-700 leading-relaxed">
+                        ¿Qué prácticas han resultado efectivas para la resolución del conflicto, como la asamblea autónoma de Simonorwa en la que participaron 134 Mamos, y cuáles evidenciaron fracaso, como la inscripción realizada por el Ministerio del Interior sin garantizar la autonomía ni la participación plena del pueblo Arhuaco?
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Actualización Continua del Esquema ACCP -->
+        <section class="bg-white rounded-xl shadow-lg p-8 mb-8">
+            <div class="text-center mb-6">
+                <span class="text-6xl">🔄</span>
+                <h2 class="text-3xl font-bold text-gray-800 mb-2">7. ACTUALIZACIÓN CONTINUA DEL ESQUEMA ACCP</h2>
+                <p class="text-lg text-gray-600">Marco dinámico y progresivo de análisis</p>
+            </div>
+            
+            <div class="prose max-w-none">
+                <p class="text-gray-700 leading-relaxed mb-4">
+                    La Corte Constitucional señaló que <em>"la solución no puede ser inmediata ni definitiva, sino progresiva, con fases de corto, mediano y largo plazo"</em>. En consecuencia, el esquema ACCP debe concebirse como un marco de actualización constante, que ordena ajustar los grupos de análisis a las variaciones del objetivo de la mediación.
+                </p>
+                
+                <div class="bg-blue-50 border border-blue-200 p-6 rounded-lg mb-6">
+                    <h3 class="text-lg font-semibold text-blue-800 mb-3">📋 Principios de Actualización</h3>
+                    <ul class="text-blue-700 space-y-2 text-sm">
+                        <li>• Los Mamos mantienen la calidad de autoridades espirituales supremas</li>
+                        <li>• El Ministerio del Interior debe abstenerse de injerencias indebidas</li>
+                        <li>• La Defensoría y Procuraduría deben ejercer acompañamiento permanente</li>
+                        <li>• El contenido debe pasar de discusión sobre inscripción irregular a consolidación del reconocimiento</li>
+                    </ul>
+                </div>
+                
+                <p class="text-gray-700 leading-relaxed">
+                    La actualización continua del esquema no constituye una facultad discrecional, sino un deber permanente, encaminado a garantizar que cada fase del remedio progresivo se ejecute en armonía con el respeto al derecho propio y con la obligación constitucional de maximizar la autonomía indígena y de actuar sin daño. Solo mediante este ajuste dinámico será posible que el ACCP cumpla su función como instrumento de acompañamiento a la construcción de paz en el resguardo Arhuaco.
+                </p>
+            </div>
+        </section>
+                
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div>
+                        <h3 class="text-xl font-semibold text-gray-800 mb-3">Descripción</h3>
+                        <p class="text-gray-700 leading-relaxed">
+                            Las causas estructurales son condiciones históricas, políticas, económicas y 
+                            sociales de largo plazo que crean un contexto propicio para el surgimiento de 
+                            conflictos. En el caso Arhuaco, estas causas se remontan a la tensión histórica 
+                            entre la autonomía indígena reconocida constitucionalmente y los mecanismos de 
+                            control administrativo del Estado colombiano.
+                        </p>
+                    </div>
+                    
+                    <div>
+                        <h3 class="text-xl font-semibold text-gray-800 mb-3">Marco Normativo</h3>
+                        <p class="text-gray-700 leading-relaxed mb-4">
+                            La Constitución de 1991 reconoce la autonomía indígena (Art. 246, 330), pero 
+                            no define claramente los límites entre esta autonomía y la intervención estatal 
+                            en asuntos internos. Esta ambigüedad normativa genera espacios de disputa sobre 
+                            competencias y procedimientos.
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="example-box">
+                    <h4 class="font-semibold text-green-800 mb-2">🌿 Ejemplo en el Caso Arhuaco</h4>
+                    <p class="text-green-700 text-sm leading-relaxed">
+                        <strong>Tensión histórica:</strong> Desde 1991, existe una contradicción entre el 
+                        reconocimiento constitucional de que los pueblos indígenas tienen derecho a 
+                        "gobernarse por autoridades propias" y la exigencia del Ministerio del Interior 
+                        de que estas decisiones se sujeten a procedimientos administrativos estatales. 
+                        Esta tensión se ha manifestado repetidamente en conflictos de representación de 
+                        diversos pueblos indígenas, no solo del pueblo Arhuaco.
+                    </p>
+                </div>
+                
+                <div class="mt-6">
+                    <h4 class="font-semibold text-gray-800 mb-3">Factores Estructurales Identificados:</h4>
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div class="timeline-item">
+                            <h5 class="font-medium text-gray-800">Ambigüedad Constitucional</h5>
+                            <p class="text-sm text-gray-600">Falta de delimitación precisa entre autonomía indígena y competencias estatales</p>
+                        </div>
+                        <div class="timeline-item">
+                            <h5 class="font-medium text-gray-800">Burocratización de Derechos</h5>
+                            <p class="text-sm text-gray-600">Subordinación de decisiones autónomas a procedimientos administrativos</p>
+                        </div>
+                        <div class="timeline-item">
+                            <h5 class="font-medium text-gray-800">Centralismo Institucional</h5>
+                            <p class="text-sm text-gray-600">Concentración de poder de reconocimiento en entidades del gobierno central</p>
+                        </div>
+                        <div class="timeline-item">
+                            <h5 class="font-medium text-gray-800">Debilidad del Pluralismo Jurídico</h5>
+                            <p class="text-sm text-gray-600">Primacía del derecho estatal sobre sistemas normativos indígenas</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Impulsores de Conflicto -->
+            <div class="category-card impulsores rounded-xl p-8">
+                <div class="text-center mb-6">
+                    <span class="category-icon">⚡</span>
+                    <h2 class="text-3xl font-bold text-gray-800 mb-2">Impulsores de Conflicto</h2>
+                    <p class="text-lg text-gray-600">Elementos que intensifican las tensiones</p>
+                </div>
+                
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div>
+                        <h3 class="text-xl font-semibold text-gray-800 mb-3">Descripción</h3>
+                        <p class="text-gray-700 leading-relaxed">
+                            Los impulsores de conflicto son factores que, sobre la base de las causas 
+                            estructurales, intensifican las tensiones y hacen más probable el estallido 
+                            del conflicto. Actúan como catalizadores que agravan las condiciones existentes 
+                            y reducen las oportunidades de resolución pacífica.
+                        </p>
+                    </div>
+                    
+                    <div>
+                        <h3 class="text-xl font-semibold text-gray-800 mb-3">Dinámicas Institucionales</h3>
+                        <p class="text-gray-700 leading-relaxed mb-4">
+                            En el caso Arhuaco, los impulsores incluyen la resistencia institucional al 
+                            cumplimiento de órdenes judiciales, la politización de decisiones administrativas 
+                            y la falta de mecanismos efectivos de diálogo intercultural en la resolución 
+                            de disputas.
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="example-box">
+                    <h4 class="font-semibold text-green-800 mb-2">⚡ Ejemplo en el Caso Arhuaco</h4>
+                    <p class="text-green-700 text-sm leading-relaxed">
+                        <strong>Resistencia sistemática:</strong> El Ministerio del Interior ha desarrollado 
+                        una práctica de resistencia sistemática a reconocer decisiones autónomas de pueblos 
+                        indígenas cuando estas no se ajustan a sus criterios administrativos. En el caso 
+                        Arhuaco, esta resistencia se manifiesta en la negativa a registrar la decisión de 
+                        los 134 Mamos en Simonorwa, a pesar de ser la autoridad suprema reconocida 
+                        constitucionalmente.
+                    </p>
+                </div>
+                
+                <div class="mt-6">
+                    <h4 class="font-semibold text-gray-800 mb-3">Impulsores Identificados:</h4>
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div class="timeline-item">
+                            <h5 class="font-medium text-gray-800">Resistencia Institucional</h5>
+                            <p class="text-sm text-gray-600">Negativa sistemática del Ministerio a acatar decisiones judiciales y autónomas</p>
+                        </div>
+                        <div class="timeline-item">
+                            <h5 class="font-medium text-gray-800">División Interna</h5>
+                            <p class="text-sm text-gray-600">Sectores disidentes que cuestionan autoridades tradicionales</p>
+                        </div>
+                        <div class="timeline-item">
+                            <h5 class="font-medium text-gray-800">Vacío de Representación</h5>
+                            <p class="text-sm text-gray-600">Prolongada ausencia de reconocimiento oficial genera incertidumbre</p>
+                        </div>
+                        <div class="timeline-item">
+                            <h5 class="font-medium text-gray-800">Precedente Negativo</h5>
+                            <p class="text-sm text-gray-600">Señal a otros pueblos de que pueden ignorarse decisiones autónomas</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Factores Desencadenantes -->
+            <div class="category-card desencadenantes rounded-xl p-8">
+                <div class="text-center mb-6">
+                    <span class="category-icon">🎯</span>
+                    <h2 class="text-3xl font-bold text-gray-800 mb-2">Factores Desencadenantes</h2>
+                    <p class="text-lg text-gray-600">Eventos específicos que activan el conflicto</p>
+                </div>
+                
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div>
+                        <h3 class="text-xl font-semibold text-gray-800 mb-3">Descripción</h3>
+                        <p class="text-gray-700 leading-relaxed">
+                            Los factores desencadenantes son eventos específicos, decisiones o acciones 
+                            concretas que, en un contexto de tensiones estructurales e impulsores activos, 
+                            precipitan la manifestación abierta del conflicto. Son los elementos que 
+                            transforman las tensiones latentes en conflicto activo.
+                        </p>
+                    </div>
+                    
+                    <div>
+                        <h3 class="text-xl font-semibold text-gray-800 mb-3">Cronología Crítica</h3>
+                        <p class="text-gray-700 leading-relaxed mb-4">
+                            En el caso Arhuaco, los factores desencadenantes incluyen la elección de 
+                            Zarwawiko Torres en 2020 durante la pandemia, la persistente negativa ministerial 
+                            de reconocimiento, y la decisión de los Mamos de convocar al encuentro de 
+                            Simonorwa para resolver definitivamente la representación.
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="example-box">
+                    <h4 class="font-semibold text-green-800 mb-2">🎯 Ejemplo en el Caso Arhuaco</h4>
+                    <p class="text-green-700 text-sm leading-relaxed">
+                        <strong>Encuentro de Simonorwa (Enero 2025):</strong> La decisión de los 134 Mamos 
+                        de ratificar transitoriamente a Zarwawiko Torres como representante legítimo constituye 
+                        el factor desencadenante más reciente. Este evento transformó una disputa administrativa 
+                        prolongada en una crisis constitucional abierta, al enfrentar directamente la autoridad 
+                        tradicional suprema con la resistencia institucional del Ministerio del Interior.
+                    </p>
+                </div>
+                
+                <div class="mt-6">
+                    <h4 class="font-semibold text-gray-800 mb-3">Cronología de Factores Desencadenantes:</h4>
+                    <div class="space-y-4">
+                        <div class="timeline-item">
+                            <h5 class="font-medium text-gray-800">2020 - Elección durante COVID-19</h5>
+                            <p class="text-sm text-gray-600">Zarwawiko Torres es elegido Cabildo Gobernador en condiciones de emergencia sanitaria</p>
+                        </div>
+                        <div class="timeline-item">
+                            <h5 class="font-medium text-gray-800">2021-2024 - Negativa sistemática</h5>
+                            <p class="text-sm text-gray-600">El Ministerio mantiene resistencia al reconocimiento durante cuatro años</p>
+                        </div>
+                        <div class="timeline-item">
+                            <h5 class="font-medium text-gray-800">2024 - Sentencia SU-419</h5>
+                            <p class="text-sm text-gray-600">La Corte Constitucional ordena respetar decisiones autónomas del pueblo Arhuaco</p>
+                        </div>
+                        <div class="timeline-item">
+                            <h5 class="font-medium text-gray-800">Enero 2025 - Encuentro de Simonorwa</h5>
+                            <p class="text-sm text-gray-600">134 Mamos ratifican transitoriamente a Zarwawiko, desafiando la resistencia ministerial</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Manifestaciones -->
+            <div class="category-card manifestaciones rounded-xl p-8">
+                <div class="text-center mb-6">
+                    <span class="category-icon">🌊</span>
+                    <h2 class="text-3xl font-bold text-gray-800 mb-2">Manifestaciones</h2>
+                    <p class="text-lg text-gray-600">Formas concretas del conflicto</p>
+                </div>
+                
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div>
+                        <h3 class="text-xl font-semibold text-gray-800 mb-3">Descripción</h3>
+                        <p class="text-gray-700 leading-relaxed">
+                            Las manifestaciones son las formas concretas y observables en que se expresa 
+                            el conflicto una vez que ha sido activado por los factores desencadenantes. 
+                            Incluyen tanto las consecuencias directas como los efectos secundarios que 
+                            el conflicto genera en los actores y su entorno.
+                        </p>
+                    </div>
+                    
+                    <div>
+                        <h3 class="text-xl font-semibold text-gray-800 mb-3">Impactos Múltiples</h3>
+                        <p class="text-gray-700 leading-relaxed mb-4">
+                            En el caso Arhuaco, las manifestaciones incluyen la judicialización del conflicto, 
+                            el vacío de representación oficial, las tensiones internas comunitarias, y el 
+                            debilitamiento de la capacidad del pueblo para ejercer sus derechos colectivos 
+                            ante el Estado y terceros.
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="example-box">
+                    <h4 class="font-semibold text-green-800 mb-2">🌊 Ejemplo en el Caso Arhuaco</h4>
+                    <p class="text-green-700 text-sm leading-relaxed">
+                        <strong>Crisis de legitimidad institucional:</strong> El conflicto se manifiesta en 
+                        una crisis de legitimidad donde coexisten dos tipos de autoridad: la legitimidad 
+                        tradicional y constitucional de los Mamos que respaldan a Zarwawiko, versus la 
+                        negativa del reconocimiento administrativo por parte del Ministerio. Esta situación 
+                        genera incertidumbre jurídica y afecta la capacidad del pueblo Arhuaco para ejercer 
+                        sus derechos territoriales, de consulta previa y participación política.
+                    </p>
+                </div>
+                
+                <div class="mt-6">
+                    <h4 class="font-semibold text-gray-800 mb-3">Manifestaciones Identificadas:</h4>
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div class="timeline-item">
+                            <h5 class="font-medium text-gray-800">Judicialización</h5>
+                            <p class="text-sm text-gray-600">Necesidad de acudir a la Corte Constitucional para resolver disputas administrativas</p>
+                        </div>
+                        <div class="timeline-item">
+                            <h5 class="font-medium text-gray-800">Vacío Representativo</h5>
+                            <p class="text-sm text-gray-600">Ausencia de representante oficialmente reconocido afecta ejercicio de derechos</p>
+                        </div>
+                        <div class="timeline-item">
+                            <h5 class="font-medium text-gray-800">División Comunitaria</h5>
+                            <p class="text-sm text-gray-600">Emergencia de sectores que cuestionan autoridades tradicionales</p>
+                        </div>
+                        <div class="timeline-item">
+                            <h5 class="font-medium text-gray-800">Debilitamiento Institucional</h5>
+                            <p class="text-sm text-gray-600">Pérdida de efectividad en la gestión de asuntos colectivos</p>
+                        </div>
+                        <div class="timeline-item">
+                            <h5 class="font-medium text-gray-800">Precedente Negativo</h5>
+                            <p class="text-sm text-gray-600">Riesgo de replicación en otros pueblos indígenas</p>
+                        </div>
+                        <div class="timeline-item">
+                            <h5 class="font-medium text-gray-800">Crisis Constitucional</h5>
+                            <p class="text-sm text-gray-600">Confrontación entre autonomía indígena y autoridad administrativa</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Estrategias de Intervención -->
+        <section class="bg-white rounded-xl shadow-lg p-8 mb-8">
+            <div class="text-center mb-6">
+                <span class="text-6xl">🕊️</span>
+                <h2 class="text-3xl font-bold text-gray-800 mb-2">ESTRATEGIAS DE INTERVENCIÓN PARA POTENCIAR LA PAZ</h2>
+                <p class="text-lg text-gray-600">En el Resguardo Arhuaco en la Sierra Nevada de Santa Marta frente a la oposición política</p>
+            </div>
+            
+            <div class="space-y-6">
+                <div class="bg-green-50 border-l-4 border-green-500 p-6">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-3">1️⃣ Primera Estrategia: Abstención de Injerencias</h3>
+                    <p class="text-gray-700 leading-relaxed">
+                        La Corte Constitucional dejó claro que la paz en el pueblo Arhuaco no puede alcanzarse mediante imposiciones estatales, sino a través del respeto y la maximización de la autonomía indígena. La primera estrategia de intervención consiste en que el Ministerio del Interior se abstenga de nuevas injerencias y, en su lugar, garantice las condiciones materiales necesarias para que los Mamos se reúnan de manera autónoma y sin presiones de terceros, internos o externos, en cumplimiento de lo ordenado en la Sentencia SU-419 de 2024.
+                    </p>
+                </div>
+                
+                <div class="bg-blue-50 border-l-4 border-blue-500 p-6">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-3">2️⃣ Segunda Estrategia: Fortalecimiento del Acompañamiento</h3>
+                    <p class="text-gray-700 leading-relaxed">
+                        Una segunda estrategia requiere fortalecer el rol de acompañamiento de la Defensoría del Pueblo y de la Procuraduría General de la Nación, entidades expresamente mencionadas en los numerales resolutivos, con el fin de verificar que el proceso de deliberación y decisión de los Mamos se desarrolle en un ambiente de respeto y de acción sin daño, asegurando la vigencia de la autonomía, el autogobierno y la integridad cultural del pueblo Iku.
+                    </p>
+                </div>
+                
+                <div class="bg-purple-50 border-l-4 border-purple-500 p-6">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-3">3️⃣ Tercera Estrategia: Reconocimiento de la Naturaleza del Conflicto</h3>
+                    <p class="text-gray-700 leading-relaxed">
+                        Es necesario que el Estado reconozca que la controversia no tiene naturaleza espiritual sino política, como quedó evidenciado en los informes allegados al proceso. Por tanto, debe propiciarse un entorno en el cual se preserve el papel de los Mamos como autoridades espirituales y políticas supremas, encargadas de interpretar la Ley de Origen y de definir, en ejercicio de su autonomía, la representación legítima del resguardo.
+                    </p>
+                </div>
+                
+                <div class="bg-orange-50 border-l-4 border-orange-500 p-6">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-3">4️⃣ Cuarta Estrategia: Diálogo Intercultural</h3>
+                    <p class="text-gray-700 leading-relaxed">
+                        Una cuarta estrategia implica que los procesos de diálogo intercultural y de implementación de políticas públicas en salud, educación y acceso al agua potable, señalados como asuntos urgentes en Simonorwa, se estructuren de manera armónica con el derecho propio. De esta forma se evitará la repetición de vulneraciones y se consolidará el remedio escalonado previsto por la Corte, que no se agota en una decisión puntual, sino que debe proyectarse en el corto, mediano y largo plazo.
+                    </p>
+                </div>
+                
+                <div class="bg-cyan-50 border-l-4 border-cyan-500 p-6">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-3">5️⃣ Quinta Estrategia: Seguimiento Participativo</h3>
+                    <p class="text-gray-700 leading-relaxed">
+                        Finalmente, la construcción de paz en este entorno demanda un mecanismo de seguimiento participativo que permita evaluar de manera continua el cumplimiento de la sentencia, la efectividad de las medidas adoptadas y la garantía de que las futuras actuaciones estatales se ajusten al principio de maximización de la autonomía indígena. Solo de este modo se consolidará un escenario de convivencia pacífica, basado en el respeto al derecho propio y en la protección constitucional de la diversidad étnica y cultural.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Cierre y Recomendaciones -->
+        <section class="bg-white rounded-xl shadow-lg p-8">
+            <div class="text-center mb-6">
+                <span class="text-6xl">📋</span>
+                <h2 class="text-3xl font-bold text-gray-800 mb-2">8. CIERRE Y RECOMENDACIONES</h2>
+                <p class="text-lg text-gray-600">Conclusiones del análisis ACCP</p>
+            </div>
+            
+            <div class="prose max-w-none">
+                <p class="text-gray-700 leading-relaxed mb-4">
+                    El caso del pueblo Arhuaco muestra que <strong>el conflicto no es espiritual sino político</strong>, como lo han expresado los Mamos; el Ministerio del Interior, al negarse a registrar la decisión de Simonorwa, incumple lo dispuesto por la Corte y fractura la unidad del pueblo. Ante esto, la Defensoría y la Procuraduría deben reforzar su rol de acompañamiento para garantizar que las decisiones autónomas sean respetadas, mientras que la comunidad debe seguir consolidando sus espacios de derecho propio.
+                </p>
+                
+                <div class="bg-yellow-50 border border-yellow-200 p-6 rounded-lg mb-6">
+                    <h3 class="text-lg font-semibold text-yellow-800 mb-3">🎯 Aprendizajes del ACCP</h3>
+                    <p class="text-yellow-700 text-sm leading-relaxed">
+                        La herramienta ACCP deja ver que el seguimiento debe ser constante, que los objetivos pueden transformarse con las circunstancias y que las estrategias deben adaptarse; la conclusión es clara: <strong>la única salida al conflicto pasa por el reconocimiento pleno de la autoridad ancestral, por el respeto irrestricto a la decisión de los Mamos y por el cumplimiento cabal de la Sentencia SU-419 de 2024.</strong>
+                    </p>
+                </div>
+                
+                <p class="text-gray-700 leading-relaxed">
+                    Solo así se honrará la Constitución que protege la diversidad étnica y cultural y se pondrá fin a una intervención estatal que, lejos de resolver, ha prolongado un conflicto que nunca debió existir.
+                </p>
+            </div>
+            
+            <div class="mt-8 p-6 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200">
+                <h4 class="font-semibold text-blue-800 mb-3">📚 Referencias</h4>
+                <div class="text-sm text-blue-700 space-y-1">
+                    <p>• Corte Constitucional. (2024). Sentencia SU-419 de 2024. Bogotá: Corte Constitucional de Colombia.</p>
+                    <p>• El Pilón. (2025, enero 15). División en el pueblo Arhuaco: comunidades cuestionan posesión de Zarwawiko como cabildo gobernador.</p>
+                    <p>• Molina Roys Ema, Gutierrez Jose y Ferrer Ana (2025). Informe sobre proceso autónomo en Simonorwa.</p>
+                    <p>• Radio Guatapurí. (2025, enero 9). En Simonorwa, Pueblo Bello, Arhuacos definirán fecha de elección del cabildo gobernador.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // Variables globales para la funcionalidad de audio
+        let speechSynthesis = window.speechSynthesis;
+        let currentUtterance = null;
+        let isPlaying = false;
+        let isPaused = false;
+        let textSegments = [];
+        let currentSegmentIndex = 0;
+        let speechRate = 1;
+        let selectedVoice = null;
+
+        // Elementos del DOM
+        const playPauseBtn = document.getElementById('playPauseBtn');
+        const stopBtn = document.getElementById('stopBtn');
+        const playIcon = document.getElementById('playIcon');
+        const playText = document.getElementById('playText');
+        const progressBar = document.getElementById('progressBar');
+        const statusText = document.getElementById('statusText');
+        const voiceSelect = document.getElementById('voiceSelect');
+        const speedButtons = document.querySelectorAll('.speed-btn');
+
+        // Inicializar voces disponibles
+        function initializeVoices() {
+            const voices = speechSynthesis.getVoices();
+            voiceSelect.innerHTML = '<option value="">Voz por defecto</option>';
+            
+            voices.forEach((voice, index) => {
+                if (voice.lang.startsWith('es')) {
+                    const option = document.createElement('option');
+                    option.value = index;
+                    option.textContent = `${voice.name} (${voice.lang})`;
+                    voiceSelect.appendChild(option);
+                }
+            });
+        }
+
+        // Cargar voces cuando estén disponibles
+        speechSynthesis.onvoiceschanged = initializeVoices;
+        initializeVoices();
+
+        // Preparar texto para lectura
+        function prepareTextForReading() {
+            const mainContent = document.getElementById('mainContent');
+            const textElements = mainContent.querySelectorAll('h1, h2, h3, h4, h5, p, li');
+            textSegments = [];
+
+            textElements.forEach((element, index) => {
+                const text = element.textContent.trim();
+                if (text && text.length > 0) {
+                    textSegments.push({
+                        element: element,
+                        text: text,
+                        index: index
+                    });
+                }
+            });
+        }
+
+        // Reproducir segmento de texto
+        function speakSegment(segmentIndex) {
+            if (segmentIndex >= textSegments.length) {
+                stopReading();
+                return;
+            }
+
+            const segment = textSegments[segmentIndex];
+            currentUtterance = new SpeechSynthesisUtterance(segment.text);
+            
+            // Configurar voz
+            if (selectedVoice) {
+                currentUtterance.voice = speechSynthesis.getVoices()[selectedVoice];
+            }
+            
+            currentUtterance.rate = speechRate;
+            currentUtterance.pitch = 1;
+            currentUtterance.volume = 1;
+
+            // Resaltar elemento actual
+            removeAllHighlights();
+            segment.element.classList.add('reading-highlight');
+            segment.element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+            // Actualizar progreso
+            const progress = ((segmentIndex + 1) / textSegments.length) * 100;
+            progressBar.style.width = progress + '%';
+            statusText.textContent = `Leyendo: ${segmentIndex + 1} de ${textSegments.length}`;
+
+            // Eventos de la síntesis de voz
+            currentUtterance.onend = () => {
+                segment.element.classList.remove('reading-highlight');
+                currentSegmentIndex++;
+                if (currentSegmentIndex < textSegments.length && isPlaying) {
+                    setTimeout(() => speakSegment(currentSegmentIndex), 500);
+                } else {
+                    stopReading();
+                }
+            };
+
+            currentUtterance.onerror = (event) => {
+                console.error('Error en síntesis de voz:', event);
+                stopReading();
+            };
+
+            speechSynthesis.speak(currentUtterance);
+        }
+
+        // Iniciar/pausar reproducción
+        function togglePlayPause() {
+            if (!isPlaying && !isPaused) {
+                startReading();
+            } else if (isPlaying && !isPaused) {
+                pauseReading();
+            } else if (isPaused) {
+                resumeReading();
+            }
+        }
+
+        // Iniciar lectura
+        function startReading() {
+            prepareTextForReading();
+            if (textSegments.length === 0) {
+                statusText.textContent = 'No hay contenido para leer';
+                return;
+            }
+
+            isPlaying = true;
+            isPaused = false;
+            currentSegmentIndex = 0;
+            
+            updatePlayButton('pause');
+            stopBtn.disabled = false;
+            
+            speakSegment(currentSegmentIndex);
+        }
+
+        // Pausar lectura
+        function pauseReading() {
+            speechSynthesis.pause();
+            isPaused = true;
+            updatePlayButton('resume');
+            statusText.textContent = 'Pausado';
+        }
+
+        // Reanudar lectura
+        function resumeReading() {
+            speechSynthesis.resume();
+            isPaused = false;
+            updatePlayButton('pause');
+            statusText.textContent = `Leyendo: ${currentSegmentIndex + 1} de ${textSegments.length}`;
+        }
+
+        // Detener lectura
+        function stopReading() {
+            speechSynthesis.cancel();
+            isPlaying = false;
+            isPaused = false;
+            currentSegmentIndex = 0;
+            
+            updatePlayButton('play');
+            stopBtn.disabled = true;
+            progressBar.style.width = '0%';
+            statusText.textContent = 'Listo para reproducir';
+            
+            removeAllHighlights();
+        }
+
+        // Actualizar botón de reproducción
+        function updatePlayButton(state) {
+            switch(state) {
+                case 'play':
+                    playIcon.textContent = '🔊';
+                    playText.textContent = 'Reproducir Página';
+                    break;
+                case 'pause':
+                    playIcon.textContent = '⏸️';
+                    playText.textContent = 'Pausar';
+                    break;
+                case 'resume':
+                    playIcon.textContent = '▶️';
+                    playText.textContent = 'Continuar';
+                    break;
+            }
+        }
+
+        // Remover todos los resaltados
+        function removeAllHighlights() {
+            document.querySelectorAll('.reading-highlight').forEach(element => {
+                element.classList.remove('reading-highlight');
+            });
+        }
+
+        // Cambiar velocidad de reproducción
+        function changeSpeed(speed) {
+            speechRate = speed;
+            speedButtons.forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            if (isPlaying && currentUtterance) {
+                // Reiniciar con nueva velocidad
+                const wasPlaying = !isPaused;
+                stopReading();
+                if (wasPlaying) {
+                    setTimeout(startReading, 300);
+                }
+            }
+        }
+
+        // Cambiar voz
+        function changeVoice() {
+            const selectedIndex = voiceSelect.value;
+            selectedVoice = selectedIndex ? parseInt(selectedIndex) : null;
+            
+            if (isPlaying && currentUtterance) {
+                // Reiniciar con nueva voz
+                const wasPlaying = !isPaused;
+                stopReading();
+                if (wasPlaying) {
+                    setTimeout(startReading, 300);
+                }
+            }
+        }
+
+        // Event Listeners
+        playPauseBtn.addEventListener('click', togglePlayPause);
+        stopBtn.addEventListener('click', stopReading);
+        voiceSelect.addEventListener('change', changeVoice);
+
+        speedButtons.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const speed = parseFloat(e.target.dataset.speed);
+                changeSpeed(speed);
+            });
+        });
+
+        // Detener lectura al salir de la página
+        window.addEventListener('beforeunload', () => {
+            speechSynthesis.cancel();
+        });
+
+        // Pausar lectura si se pierde el foco de la página
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden && isPlaying && !isPaused) {
+                pauseReading();
+            }
+        });
+    </script>
+</body>
+</html>

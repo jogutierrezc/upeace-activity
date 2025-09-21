@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contexto del Conflicto Arhuaco - Análisis ACCP</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .relationship-card {
+            background: linear-gradient(145deg, #ffffff, #f8fafc);
+            border: 2px solid #e2e8f0;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .relationship-card:hover {
+            border-color: #3b82f6;
+            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.15);
+            transform: translateY(-4px);
+        }
+        
+        .relationship-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+        
+        .relationship-card:hover::before {
+            transform: scaleX(1);
+        }
+        
+        .relationship-type {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .tipo-conflicto {
+            background: linear-gradient(135deg, #fee2e2, #fecaca);
+            color: #991b1b;
+            border: 1px solid #ef4444;
+        }
+        
+        .tipo-alianza {
+            background: linear-gradient(135deg, #dcfce7, #bbf7d0);
+            color: #166534;
+            border: 1px solid #22c55e;
+        }
+        
+        .tipo-supervision {
+            background: linear-gradient(135deg, #fef3c7, #fde68a);
+            color: #92400e;
+            border: 1px solid #f59e0b;
+        }
+        
+        .tipo-colaboracion {
+            background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+            color: #1e40af;
+            border: 1px solid #3b82f6;
+        }
+        
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(4px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .modal.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            transform: scale(0.7);
+            transition: transform 0.3s ease;
+        }
+        
+        .modal.active .modal-content {
+            transform: scale(1);
+        }
+        
+        .impact-level {
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        
+        .impacto-alto {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        
+        .impacto-medio {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        
+        .impacto-bajo {
+            background: #dcfce7;
+            color: #166534;
+        }
+        
+        .gradient-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .timeline-item {
+            border-left: 3px solid #e2e8f0;
+            position: relative;
+        }
+        
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -6px;
+            top: 8px;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #3b82f6;
+        }
+        
+        .actor-tag {
+            background: #f1f5f9;
+            color: #475569;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            border: 1px solid #cbd5e1;
+        }
+        
+        .nav-link {
+            background: #f1f5f9;
+            color: #475569;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .nav-link:hover {
+            background: #e2e8f0;
+            color: #1e293b;
+        }
+        
+        .nav-link.active {
+            background: #3b82f6;
+            color: white;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 min-h-screen">
+    <!-- Header -->
+    <header class="gradient-header shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 py-6">
+            <div class="text-center">
+                <h1 class="text-4xl font-bold mb-2">Contexto del Conflicto Arhuaco</h1>
+                <p class="text-xl opacity-90">Análisis de Relaciones entre Actores - Metodología ACCP</p>
+                <p class="text-sm opacity-75 mt-2">Caso: Sentencia SU-419 de 2024 - Representación del Pueblo Arhuaco</p>
+            </div>
+        </div>
+    </header>
+
+    <!-- Navigation -->
+    <nav class="bg-white shadow-md border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="flex justify-center space-x-8 py-4">
+                <a href="#" class="nav-link active px-6 py-2 rounded-lg font-semibold transition-colors">
+                    📋 Contexto del Conflicto
+                </a>
+                <a href="mapa_conflicto_arhuaco.html" class="nav-link px-6 py-2 rounded-lg font-semibold transition-colors hover:bg-gray-200">
+                    🗺️ Mapa Interactivo
+                </a>
+                <a href="mapa_conflicto_arhuaco.html?page=actor-analysis" class="nav-link px-6 py-2 rounded-lg font-semibold transition-colors hover:bg-gray-200">
+                    📊 Análisis de Actores
+                </a>
+                <a href="analisis_causas_conflicto.html" class="nav-link px-6 py-2 rounded-lg font-semibold transition-colors hover:bg-gray-200">
+                    🔍 Análisis de Causas
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 py-8">
+        <!-- Introducción -->
+        <section class="bg-white rounded-xl shadow-lg p-8 mb-8">
+            <h1 class="text-4xl font-bold text-gray-800 mb-6">ANÁLISIS AL CASO ARHUACO, APLICANDO LA HERRAMIENTA ACCP A LA LUZ DE LA SENTENCIA SU419 DE 2024</h1>
+            <h2 class="text-2xl font-semibold text-blue-700 mb-6">Controversia por la designación de Zarwawiko Torres Torres como cabildo gobernador del Resguardo Arhuaco en la Sierra Nevada de Santa Marta frente a la oposición política</h2>
+            
+            <div class="bg-blue-50 border-l-4 border-blue-400 p-6 mb-6">
+                <h3 class="text-xl font-semibold text-gray-800 mb-3">INTRODUCCIÓN</h3>
+                <p class="text-gray-700 leading-relaxed mb-4">
+                    La herramienta ACCP, cuyas siglas corresponden a <strong>Actores, Contenido, Contexto y Proceso</strong>, es un método de análisis de conflictos que organiza la información y permite una visión integral de los factores que alimentan una disputa; facilita identificar a los actores involucrados, precisar el núcleo de la controversia, reconocer las circunstancias en que surge y describir los procesos adelantados para resolverla.
+                </p>
+                <p class="text-gray-700 leading-relaxed">
+                    De esta forma, el ACCP funciona como un marco de interpretación que descompone situaciones complejas en sus elementos esenciales y orienta la construcción de soluciones claras y ajustadas a la realidad. Aplicar esta herramienta al caso Arhuaco resulta pertinente porque la controversia no se limita a la designación de un cabildo gobernador, sino que revela tensiones entre la autonomía indígena y la intervención estatal; en este escenario, el ACCP permite aproximarse a un conflicto vigente, comprender sus dinámicas y proyectar alternativas que fortalezcan la paz y el respeto por el derecho propio.
+                </p>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-6">
+                <div class="bg-green-50 border-l-4 border-green-400 p-6">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-3">1. CONTEXTO DEL CONFLICTO</h3>
+                    <p class="text-gray-700 leading-relaxed text-sm">
+                        El pueblo Arhuaco, asentado en la Sierra Nevada de Santa Marta, ha sido testigo de un conflicto que no nació entre sus autoridades espirituales, sino en la forma en que el Estado ha intervenido en la designación de su cabildo gobernador. Durante la pandemia del año 2020 se llevó a cabo un proceso en Nabusímake que terminó con la elección de Zarwawiko Torres Torres, lo que limitó la participación de varios asentamientos y afectó la posibilidad de desarrollar plenamente los usos, costumbres y procedimientos tradicionales de los Mamos en los espacios espirituales.
+                    </p>
+                </div>
+                <div class="bg-purple-50 border-l-4 border-purple-400 p-6">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-3">2. OBJETIVO DE LA MEDIACIÓN</h3>
+                    <p class="text-gray-700 leading-relaxed text-sm">
+                        El propósito de la mediación quedó delineado por la Corte al exigir un acuerdo autónomo que definiera, de manera transitoria o definitiva, la representación legal del resguardo. El objetivo central de la mediación puede resumirse en lograr un acuerdo adoptado por los Mamos, que garantice unidad, autonomía e integridad cultural, blindado frente a injerencias estatales o de facciones políticas.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Estadísticas Rápidas -->
+        <section class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+            <div class="bg-white rounded-lg shadow-md p-6 text-center">
+                <div class="text-3xl font-bold text-red-600">4</div>
+                <div class="text-sm text-gray-600">Relaciones de Conflicto</div>
+            </div>
+            <div class="bg-white rounded-lg shadow-md p-6 text-center">
+                <div class="text-3xl font-bold text-green-600">6</div>
+                <div class="text-sm text-gray-600">Relaciones de Alianza</div>
+            </div>
+            <div class="bg-white rounded-lg shadow-md p-6 text-center">
+                <div class="text-3xl font-bold text-yellow-600">3</div>
+                <div class="text-sm text-gray-600">Relaciones de Supervisión</div>
+            </div>
+            <div class="bg-white rounded-lg shadow-md p-6 text-center">
+                <div class="text-3xl font-bold text-blue-600">2</div>
+                <div class="text-sm text-gray-600">Relaciones de Colaboración</div>
+            </div>
+        </section>
+
+        <!-- Relaciones -->
+        <section class="mb-8">
+            <h2 class="text-3xl font-bold text-gray-800 mb-6">🔗 Relaciones entre Actores</h2>
+            <p class="text-gray-600 mb-6">Haz clic en cualquier relación para ver información detallada</p>
+            
+            <div class="grid gap-4" id="relationshipsContainer">
+                <!-- Las relaciones se generarán dinámicamente con JavaScript -->
+            </div>
+        </section>
+    </main>
+
+    <!-- Modal para detalles de relación -->
+    <div id="relationshipModal" class="modal">
+        <div class="modal-content">
+            <div id="modalContent">
+                <!-- El contenido se cargará dinámicamente -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Datos de las relaciones
+        const relationships = [
+            {
+                id: 1,
+                from: 'Mamos',
+                to: 'Zarwawiko Torres',
+                type: 'alianza',
+                title: 'Ratificación Transitoria de Autoridad',
+                description: 'Los Mamos ratifican transitoriamente a Zarwawiko como representante',
+                impact: 'alto',
+                details: {
+                    context: 'En el encuentro de Simonorwa (enero 2025), los 134 Mamos presentes ratificaron transitoriamente a Zarwawiko Torres como Cabildo Gobernador, reconociendo su legitimidad bajo la Ley de Origen.',
+                    dynamics: 'Esta relación representa el ejercicio de la autoridad espiritual suprema de los Mamos para resolver el conflicto de representación. Es una alianza basada en la tradición y la necesidad de unidad.',
+                    implications: 'Establece un precedente sobre la supremacía de las autoridades tradicionales en la definición de representación política del pueblo Arhuaco.',
+                    citations: [
+                        'Corte Constitucional. (2024). Sentencia SU-419 de 2024. M.P. José Fernando Reyes Cuartas. pp. 45-47.',
+                        'Molina Roys, Gutierrez Jose y Ferrer Ana (2025). Informe sobre proceso autónomo en Simonorwa.'
+                    ],
+                    timeline: [
+                        { date: '2020', event: 'Elección de Zarwawiko durante COVID-19' },
+                        { date: '2021-2024', event: 'Período sin reconocimiento oficial del Ministerio' },
+                        { date: 'Enero 2025', event: 'Ratificación por 134 Mamos en Simonorwa' }
+                    ]
+                }
+            },
+            {
+                id: 2,
+                from: 'Ministerio del Interior',
+                to: 'Zarwawiko Torres',
+                type: 'conflicto',
+                title: 'Negativa de Reconocimiento Oficial',
+                description: 'El Ministerio se niega a registrar la decisión de los Mamos',
+                impact: 'alto',
+                details: {
+                    context: 'A pesar de la decisión autónoma de los Mamos en Simonorwa, el Ministerio del Interior mantiene su negativa a reconocer oficialmente a Zarwawiko Torres como representante legítimo.',
+                    dynamics: 'Conflicto de competencias entre la autonomía indígena y la autoridad administrativa estatal. El Ministerio alega procedimientos administrativos mientras ignora la decisión tradicional.',
+                    implications: 'Genera un vacío de representación oficial que afecta la capacidad del pueblo Arhuaco para ejercer sus derechos colectivos ante el Estado.',
+                    citations: [
+                        'Corte Constitucional. (2024). Sentencia SU-419 de 2024. M.P. José Fernando Reyes Cuartas. pp. 89-92.',
+                        'Molina Roys, Gutierrez Jose y Ferrer Ana (2025). Acompañamiento al proceso autónomo de Simonorwa.'
+                    ],
+                    timeline: [
+                        { date: '2020-2024', event: 'Negativa sistemática del Ministerio' },
+                        { date: 'Enero 2025', event: 'Ratificación en Simonorwa ignorada por el Ministerio' },
+                        { date: 'Febrero 2025', event: 'Orden judicial de cumplimiento' }
+                    ]
+                }
+            },
+            {
+                id: 3,
+                from: 'Corte Constitucional',
+                to: 'Ministerio del Interior',
+                type: 'supervision',
+                title: 'Orden de Cumplimiento y Seguimiento',
+                description: 'La Corte ordena al Ministerio reconocer las decisiones autónomas',
+                impact: 'alto',
+                details: {
+                    context: 'La Corte Constitucional emite órdenes específicas al Ministerio del Interior para que respete y acate las decisiones autónomas del pueblo Arhuaco sobre su representación.',
+                    dynamics: 'Relación de control constitucional donde la Corte ejerce su función de guardiana de la Constitución, especialmente en materia de derechos fundamentales indígenas.',
+                    implications: 'Establece un precedente sobre la primacía de la autonomía indígena y los límites de la intervención estatal en asuntos internos de los pueblos originarios.',
+                    citations: [
+                        'Corte Constitucional. (2024). Sentencia SU-419 de 2024. M.P. José Fernando Reyes Cuartas. pp. 134-138.',
+                        'Constitución Política de Colombia. (1991). Artículos 246 y 330.'
+                    ],
+                    timeline: [
+                        { date: '2024', event: 'Emisión de la Sentencia SU-419' },
+                        { date: '2025', event: 'Seguimiento al cumplimiento de órdenes' },
+                        { date: 'Ongoing', event: 'Monitoreo continuo del cumplimiento' }
+                    ]
+                }
+            },
+            {
+                id: 4,
+                from: 'Mamos',
+                to: 'Comunidad Arhuaca',
+                type: 'alianza',
+                title: 'Autoridad Espiritual y Política Suprema',
+                description: 'Los Mamos ejercen liderazgo tradicional sobre la comunidad',
+                impact: 'alto',
+                details: {
+                    context: 'Los Mamos constituyen la autoridad máxima del pueblo Arhuaco, con legitimidad derivada de la Ley de Origen y reconocida constitucionalmente.',
+                    dynamics: 'Relación de autoridad tradicional basada en principios espirituales, conocimiento ancestral y responsabilidad de mantener el equilibrio territorial y social.',
+                    implications: 'Fundamental para la gobernanza indígena y la toma de decisiones colectivas, especialmente en asuntos de representación política y territorial.',
+                    citations: [
+                        'Corte Constitucional. (2024). Sentencia SU-419 de 2024. M.P. José Fernando Reyes Cuartas. pp. 23-28.',
+                        'Molina Roys, Gutierrez Jose y Ferrer Ana (2025). Informe sobre proceso autónomo en Simonorwa.'
+                    ],
+                    timeline: [
+                        { date: 'Ancestral', event: 'Establecimiento de la autoridad de los Mamos' },
+                        { date: '1991', event: 'Reconocimiento constitucional' },
+                        { date: '2025', event: 'Ejercicio de autoridad en Simonorwa' }
+                    ]
+                }
+            },
+            {
+                id: 5,
+                from: 'Líderes Políticos en Pugna',
+                to: 'Mamos',
+                type: 'conflicto',
+                title: 'Desafío a la Autoridad Tradicional',
+                description: 'Algunos líderes cuestionan las decisiones de los Mamos',
+                impact: 'medio',
+                details: {
+                    context: 'Sectores disidentes dentro del pueblo Arhuaco que cuestionan la legitimidad y las decisiones de los Mamos, generando división interna.',
+                    dynamics: 'Tensión entre liderazgos tradicionales y emergentes, con diferentes visiones sobre la representación política y las relaciones con el Estado.',
+                    implications: 'Debilita la unidad comunitaria y puede afectar la efectividad de las decisiones autónomas, requiriendo procesos de diálogo interno.',
+                    citations: [
+                        'Corte Constitucional. (2024). Sentencia SU-419 de 2024. M.P. José Fernando Reyes Cuartas. p. 87.',
+                        'Molina Roys, Gutierrez Jose y Ferrer Ana (2025). Informe sobre proceso autónomo en Simonorwa.'
+                    ],
+                    timeline: [
+                        { date: '2020-2024', event: 'Emergencia de sectores disidentes' },
+                        { date: '2024', event: 'Cuestionamientos públicos a decisiones tradicionales' },
+                        { date: '2025', event: 'Tensiones durante el proceso de Simonorwa' }
+                    ]
+                }
+            },
+            {
+                id: 6,
+                from: 'Defensoría del Pueblo',
+                to: 'Mamos',
+                type: 'alianza',
+                title: 'Acompañamiento del Proceso Autónomo',
+                description: 'La Defensoría apoya y verifica el proceso tradicional',
+                impact: 'medio',
+                details: {
+                    context: 'La Defensoría del Pueblo acompaña el proceso autónomo de Simonorwa como garante de derechos humanos y verificador de la legitimidad del proceso.',
+                    dynamics: 'Relación de apoyo institucional que reconoce la autonomía indígena mientras asegura el respeto a los derechos fundamentales.',
+                    implications: 'Proporciona legitimidad externa al proceso autónomo y actúa como puente entre las autoridades tradicionales y el sistema institucional.',
+                    citations: [
+                        'Corte Constitucional. (2024). Sentencia SU-419 de 2024. M.P. José Fernando Reyes Cuartas. pp. 112-113.',
+                        'Molina Roys, Gutierrez Jose y Ferrer Ana (2025). Acompañamiento al proceso autónomo de Simonorwa.'
+                    ],
+                    timeline: [
+                        { date: '2024', event: 'Inicio del acompañamiento institucional' },
+                        { date: 'Enero 2025', event: 'Verificación del proceso de Simonorwa' },
+                        { date: 'Ongoing', event: 'Seguimiento continuo' }
+                    ]
+                }
+            },
+            {
+                id: 7,
+                from: 'Procuraduría General',
+                to: 'Ministerio del Interior',
+                type: 'supervision',
+                title: 'Control Disciplinario y Vigilancia',
+                description: 'La Procuraduría vigila el cumplimiento de órdenes judiciales',
+                impact: 'medio',
+                details: {
+                    context: 'La Procuraduría ejerce control disciplinario sobre funcionarios del Ministerio del Interior que no cumplan las órdenes constitucionales.',
+                    dynamics: 'Relación de control y vigilancia institucional para asegurar que las entidades estatales respeten las decisiones judiciales y los derechos indígenas.',
+                    implications: 'Mecanismo de presión institucional que puede generar consecuencias disciplinarias por incumplimiento de órdenes judiciales.',
+                    citations: [
+                        'Corte Constitucional. (2024). Sentencia SU-419 de 2024. M.P. José Fernando Reyes Cuartas. pp. 145-147.',
+                        'Ley 734 de 2002. Código Disciplinario Único.'
+                    ],
+                    timeline: [
+                        { date: '2024', event: 'Activación del control disciplinario' },
+                        { date: '2025', event: 'Seguimiento al cumplimiento ministerial' },
+                        { date: 'Ongoing', event: 'Vigilancia continua' }
+                    ]
+                }
+            },
+            {
+                id: 8,
+                from: 'Defensoría del Pueblo',
+                to: 'Comunidad Arhuaca',
+                type: 'alianza',
+                title: 'Protección de Derechos Colectivos',
+                description: 'La Defensoría protege los derechos del pueblo Arhuaco',
+                impact: 'medio',
+                details: {
+                    context: 'La Defensoría actúa como protector de los derechos colectivos del pueblo Arhuaco, especialmente en relación con su autonomía y representación.',
+                    dynamics: 'Relación de protección institucional que busca garantizar el ejercicio efectivo de los derechos fundamentales colectivos.',
+                    implications: 'Fortalece la posición del pueblo Arhuaco ante instituciones estatales y proporciona mecanismos de defensa de sus derechos.',
+                    citations: [
+                        'Corte Constitucional. (2024). Sentencia SU-419 de 2024. M.P. José Fernando Reyes Cuartas. pp. 112-113.',
+                        'Ley 24 de 1992. Defensoría del Pueblo.'
+                    ],
+                    timeline: [
+                        { date: '2020', event: 'Inicio del acompañamiento al conflicto' },
+                        { date: '2024', event: 'Intensificación de la protección' },
+                        { date: '2025', event: 'Verificación de derechos en Simonorwa' }
+                    ]
+                }
+            },
+            {
+                id: 9,
+                from: 'Corte Constitucional',
+                to: 'Comunidad Arhuaca',
+                type: 'alianza',
+                title: 'Protección Constitucional de Autonomía',
+                description: 'La Corte protege la autonomía y derechos del pueblo Arhuaco',
+                impact: 'alto',
+                details: {
+                    context: 'La Corte Constitucional actúa como garante supremo de los derechos fundamentales del pueblo Arhuaco, especialmente su autonomía política.',
+                    dynamics: 'Relación de protección constitucional que establece precedentes jurisprudenciales para la protección de la autonomía indígena.',
+                    implications: 'Crea un marco jurídico sólido para la protección de los derechos indígenas y establece límites claros a la intervención estatal.',
+                    citations: [
+                        'Corte Constitucional. (2024). Sentencia SU-419 de 2024. M.P. José Fernando Reyes Cuartas.',
+                        'Constitución Política de Colombia. (1991). Artículos 7, 246 y 330.'
+                    ],
+                    timeline: [
+                        { date: '1991', event: 'Reconocimiento constitucional inicial' },
+                        { date: '2024', event: 'Emisión de la Sentencia SU-419' },
+                        { date: 'Ongoing', event: 'Protección jurisprudencial continua' }
+                    ]
+                }
+            },
+            {
+                id: 10,
+                from: 'Zarwawiko Torres',
+                to: 'Comunidad Arhuaca',
+                type: 'alianza',
+                title: 'Representación Política Transitoria',
+                description: 'Zarwawiko representa transitoriamente a la comunidad',
+                impact: 'alto',
+                details: {
+                    context: 'Zarwawiko Torres ejerce la representación política del pueblo Arhuaco con el respaldo de los Mamos y la comunidad, aunque sin reconocimiento ministerial.',
+                    dynamics: 'Relación de representación política basada en legitimidad tradicional, ejercida de facto mientras se resuelve el reconocimiento oficial.',
+                    implications: 'Mantiene la continuidad institucional del pueblo Arhuaco y permite el ejercicio de derechos colectivos ante limitaciones burocráticas.',
+                    citations: [
+                        'Corte Constitucional. (2024). Sentencia SU-419 de 2024. M.P. José Fernando Reyes Cuartas. pp. 45-47.',
+                        'Molina Roys, Gutierrez Jose y Ferrer Ana (2025). Informe sobre proceso autónomo en Simonorwa.'
+                    ],
+                    timeline: [
+                        { date: '2020', event: 'Elección inicial como Cabildo Gobernador' },
+                        { date: '2025', event: 'Ratificación por los Mamos en Simonorwa' },
+                        { date: 'Ongoing', event: 'Ejercicio de representación transitoria' }
+                    ]
+                }
+            },
+            {
+                id: 11,
+                from: 'Líderes Políticos en Pugna',
+                to: 'Zarwawiko Torres',
+                type: 'conflicto',
+                title: 'Cuestionamiento de Legitimidad',
+                description: 'Sectores disidentes cuestionan la representación de Zarwawiko',
+                impact: 'medio',
+                details: {
+                    context: 'Algunos líderes políticos dentro del pueblo Arhuaco mantienen oposición a la representación de Zarwawiko Torres, generando división interna.',
+                    dynamics: 'Conflicto interno sobre legitimidad de representación que debilita la unidad política y puede afectar la efectividad de la gestión.',
+                    implications: 'Requiere procesos de diálogo interno y reconciliación para fortalecer la unidad comunitaria y la legitimidad de la representación.',
+                    citations: [
+                        'Corte Constitucional. (2024). Sentencia SU-419 de 2024. M.P. José Fernando Reyes Cuartas. p. 87.',
+                        'Molina Roys, Gutierrez Jose y Ferrer Ana (2025). Informe sobre proceso autónomo en Simonorwa.'
+                    ],
+                    timeline: [
+                        { date: '2020-2024', event: 'Desarrollo de la oposición interna' },
+                        { date: '2024', event: 'Intensificación de cuestionamientos' },
+                        { date: '2025', event: 'Persistencia de tensiones post-Simonorwa' }
+                    ]
+                }
+            },
+            {
+                id: 12,
+                from: 'Corte Constitucional',
+                to: 'Mamos',
+                type: 'alianza',
+                title: 'Reconocimiento de Autoridad Tradicional',
+                description: 'La Corte reconoce y valida la autoridad suprema de los Mamos',
+                impact: 'alto',
+                details: {
+                    context: 'La Corte Constitucional reconoce expresamente la autoridad suprema de los Mamos en la Sentencia SU-419, validando su competencia para definir representación.',
+                    dynamics: 'Relación de reconocimiento institucional que fortalece la autoridad tradicional y establece su legitimidad constitucional.',
+                    implications: 'Consolida el marco jurídico de la autonomía indígena y establece precedentes para futuros conflictos de representación.',
+                    citations: [
+                        'Corte Constitucional. (2024). Sentencia SU-419 de 2024. M.P. José Fernando Reyes Cuartas. pp. 23-28.',
+                        'Constitución Política de Colombia. (1991). Artículo 246.'
+                    ],
+                    timeline: [
+                        { date: '1991', event: 'Reconocimiento constitucional inicial' },
+                        { date: '2024', event: 'Validación específica en SU-419' },
+                        { date: '2025', event: 'Aplicación práctica en Simonorwa' }
+                    ]
+                }
+            },
+            {
+                id: 13,
+                from: 'Líderes Políticos en Pugna',
+                to: 'Comunidad Arhuaca',
+                type: 'conflicto',
+                title: 'División Comunitaria',
+                description: 'Los sectores disidentes generan fracturas en la unidad comunitaria',
+                impact: 'medio',
+                details: {
+                    context: 'Los líderes políticos en pugna generan divisiones dentro de la comunidad Arhuaca, afectando la cohesión social y política.',
+                    dynamics: 'Conflicto interno que fragmenta la comunidad y puede debilitar la capacidad de acción colectiva y toma de decisiones consensuadas.',
+                    implications: 'Requiere procesos de reconciliación y fortalecimiento de la unidad comunitaria para mantener la efectividad de la autonomía indígena.',
+                    citations: [
+                        'Corte Constitucional. (2024). Sentencia SU-419 de 2024. M.P. José Fernando Reyes Cuartas. p. 87.',
+                        'Molina Roys, Gutierrez Jose y Ferrer Ana (2025). Informe sobre proceso autónomo en Simonorwa.'
+                    ],
+                    timeline: [
+                        { date: '2020-2024', event: 'Emergencia de divisiones internas' },
+                        { date: '2024', event: 'Intensificación de conflictos comunitarios' },
+                        { date: '2025', event: 'Búsqueda de reconciliación en Simonorwa' }
+                    ]
+                }
+            },
+            {
+                id: 14,
+                from: 'Defensoría del Pueblo',
+                to: 'Zarwawiko Torres',
+                type: 'colaboracion',
+                title: 'Apoyo a la Representación Legítima',
+                description: 'La Defensoría colabora con la representación ratificada por los Mamos',
+                impact: 'medio',
+                details: {
+                    context: 'La Defensoría del Pueblo colabora activamente con Zarwawiko Torres como representante legítimo, proporcionando apoyo institucional.',
+                    dynamics: 'Relación de colaboración institucional que fortalece la legitimidad de la representación y facilita el ejercicio de derechos.',
+                    implications: 'Proporciona respaldo institucional que puede facilitar el reconocimiento oficial y el ejercicio efectivo de la representación.',
+                    citations: [
+                        'Corte Constitucional. (2024). Sentencia SU-419 de 2024. M.P. José Fernando Reyes Cuartas. pp. 112-113.',
+                        'Molina Roys, Gutierrez Jose y Ferrer Ana (2025). Acompañamiento al proceso autónomo de Simonorwa.'
+                    ],
+                    timeline: [
+                        { date: '2024', event: 'Inicio de la colaboración institucional' },
+                        { date: 'Enero 2025', event: 'Apoyo durante el proceso de Simonorwa' },
+                        { date: 'Ongoing', event: 'Colaboración continua' }
+                    ]
+                }
+            },
+            {
+                id: 15,
+                from: 'Procuraduría General',
+                to: 'Comunidad Arhuaca',
+                type: 'colaboracion',
+                title: 'Vigilancia del Respeto a Derechos',
+                description: 'La Procuraduría vigila que se respeten los derechos del pueblo Arhuaco',
+                impact: 'bajo',
+                details: {
+                    context: 'La Procuraduría General ejerce vigilancia para asegurar que las instituciones estatales respeten los derechos del pueblo Arhuaco.',
+                    dynamics: 'Relación de vigilancia institucional que actúa como mecanismo de protección indirecta de los derechos colectivos.',
+                    implications: 'Proporciona un mecanismo adicional de protección y puede generar consecuencias disciplinarias por violaciones a derechos indígenas.',
+                    citations: [
+                        'Corte Constitucional. (2024). Sentencia SU-419 de 2024. M.P. José Fernando Reyes Cuartas. pp. 145-147.',
+                        'Ley 734 de 2002. Código Disciplinario Único.'
+                    ],
+                    timeline: [
+                        { date: '2024', event: 'Activación de vigilancia específica' },
+                        { date: '2025', event: 'Monitoreo del cumplimiento de órdenes' },
+                        { date: 'Ongoing', event: 'Vigilancia continua' }
+                    ]
+                }
+            }
+        ];
+
+        // Función para generar las tarjetas de relaciones
+        function generateRelationshipCards() {
+            const container = document.getElementById('relationshipsContainer');
+            
+            relationships.forEach(rel => {
+                const card = document.createElement('div');
+                card.className = 'relationship-card rounded-xl p-6';
+                card.onclick = () => showRelationshipModal(rel);
+                
+                card.innerHTML = `
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="flex-1">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-2">${rel.title}</h3>
+                            <div class="flex items-center gap-3 mb-2">
+                                <span class="actor-tag">${rel.from}</span>
+                                <span class="text-gray-400">→</span>
+                                <span class="actor-tag">${rel.to}</span>
+                            </div>
+                        </div>
+                        <div class="flex flex-col items-end gap-2">
+                            <span class="relationship-type tipo-${rel.type}">${getTypeLabel(rel.type)}</span>
+                            <span class="impact-level impacto-${rel.impact}">Impacto ${rel.impact}</span>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 text-sm leading-relaxed">${rel.description}</p>
+                    <div class="mt-4 text-right">
+                        <span class="text-blue-600 text-sm font-medium">👆 Clic para más detalles</span>
+                    </div>
+                `;
+                
+                container.appendChild(card);
+            });
+        }
+
+        // Función para obtener la etiqueta del tipo de relación
+        function getTypeLabel(type) {
+            const labels = {
+                'conflicto': 'Conflicto',
+                'alianza': 'Alianza',
+                'supervision': 'Supervisión',
+                'colaboracion': 'Colaboración'
+            };
+            return labels[type] || type;
+        }
+
+        // Función para mostrar el modal con detalles de la relación
+        function showRelationshipModal(relationship) {
+            const modal = document.getElementById('relationshipModal');
+            const content = document.getElementById('modalContent');
+            
+            content.innerHTML = `
+                <div class="gradient-header p-6 rounded-t-2xl">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h2 class="text-2xl font-bold mb-2">${relationship.title}</h2>
+                            <div class="flex items-center gap-3">
+                                <span class="bg-white bg-opacity-20 px-3 py-1 rounded-full text-sm font-medium">
+                                    ${relationship.from} → ${relationship.to}
+                                </span>
+                                <span class="relationship-type tipo-${relationship.type}">${getTypeLabel(relationship.type)}</span>
+                            </div>
+                        </div>
+                        <button onclick="closeModal()" class="text-white hover:bg-white hover:bg-opacity-20 rounded-full p-2 transition-colors">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="p-6 space-y-6">
+                    <!-- Contexto -->
+                    <section>
+                        <h3 class="text-lg font-semibold text-gray-800 mb-3 flex items-center gap-2">
+                            📋 Contexto
+                        </h3>
+                        <p class="text-gray-700 leading-relaxed">${relationship.details.context}</p>
+                    </section>
+                    
+                    <!-- Dinámicas -->
+                    <section>
+                        <h3 class="text-lg font-semibold text-gray-800 mb-3 flex items-center gap-2">
+                            ⚡ Dinámicas de la Relación
+                        </h3>
+                        <p class="text-gray-700 leading-relaxed">${relationship.details.dynamics}</p>
+                    </section>
+                    
+                    <!-- Implicaciones -->
+                    <section>
+                        <h3 class="text-lg font-semibold text-gray-800 mb-3 flex items-center gap-2">
+                            🎯 Implicaciones para el Conflicto
+                        </h3>
+                        <p class="text-gray-700 leading-relaxed">${relationship.details.implications}</p>
+                    </section>
+                    
+                    <!-- Línea de tiempo -->
+                    <section>
+                        <h3 class="text-lg font-semibold text-gray-800 mb-3 flex items-center gap-2">
+                            📅 Línea de Tiempo
+                        </h3>
+                        <div class="space-y-3">
+                            ${relationship.details.timeline.map(item => `
+                                <div class="timeline-item pl-6 pb-3">
+                                    <div class="flex items-center gap-3">
+                                        <span class="font-medium text-blue-600">${item.date}</span>
+                                        <span class="text-gray-700">${item.event}</span>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </section>
+                    
+                    <!-- Referencias -->
+                    <section>
+                        <h3 class="text-lg font-semibold text-gray-800 mb-3 flex items-center gap-2">
+                            📚 Referencias (APA)
+                        </h3>
+                        <div class="space-y-2">
+                            ${relationship.details.citations.map(citation => `
+                                <div class="bg-gray-50 border-l-4 border-blue-500 p-3 text-sm italic text-gray-700">
+                                    ${citation}
+                                </div>
+                            `).join('')}
+                        </div>
+                    </section>
+                </div>
+            `;
+            
+            modal.classList.add('active');
+        }
+
+        // Función para cerrar el modal
+        function closeModal() {
+            const modal = document.getElementById('relationshipModal');
+            modal.classList.remove('active');
+        }
+
+        // Cerrar modal al hacer clic fuera del contenido
+        document.getElementById('relationshipModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+
+        // Cerrar modal con la tecla Escape
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeModal();
+            }
+        });
+
+        // Inicializar la página
+        document.addEventListener('DOMContentLoaded', function() {
+            generateRelationshipCards();
+        });
+    </script>
+</body>
+</html>

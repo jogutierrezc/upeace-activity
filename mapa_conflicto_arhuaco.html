@@ -1,0 +1,2227 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mapa de Conflicto Arhuaco</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f4f8;
+            color: #333;
+        }
+        
+        .canvas-container {
+            border: 2px solid #e2e8f0;
+            border-radius: 1rem;
+            overflow: hidden;
+            background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+            position: relative;
+        }
+        
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+        
+        .tooltip {
+            position: absolute;
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.9), rgba(45, 55, 72, 0.9));
+            color: white;
+            padding: 0.75rem 1rem;
+            border-radius: 0.75rem;
+            font-size: 0.875rem;
+            pointer-events: none;
+            z-index: 100;
+            max-width: 250px;
+            transform: translate(-50%, -110%);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .legend-color {
+            width: 24px;
+            height: 4px;
+            border-radius: 2px;
+            margin-right: 0.75rem;
+        }
+        
+        .actor-info {
+            background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+            border: 1px solid #e2e8f0;
+            border-radius: 0.75rem;
+            padding: 1.25rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+        
+        .actor-info:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border-color: #cbd5e0;
+        }
+        
+        .actor-info.active {
+            border-color: #4299e1;
+            background: linear-gradient(135deg, #ebf8ff, #bee3f8);
+        }
+        
+        .actor-title {
+            font-weight: 600;
+            color: #2d3748;
+            font-size: 1.125rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .relationship-panel {
+            position: fixed;
+            top: 50%;
+            right: -450px;
+            transform: translateY(-50%);
+            width: 400px;
+            background: white;
+            border-radius: 1rem 0 0 1rem;
+            box-shadow: -8px 0 24px rgba(0, 0, 0, 0.2);
+            padding: 1.5rem;
+            transition: right 0.4s ease;
+            z-index: 1000;
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+        
+        .relationship-panel.active {
+            right: 0;
+        }
+        
+        .close-btn {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: #f7fafc;
+            border: none;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: #718096;
+        }
+        
+        .close-btn:hover {
+            background: #edf2f7;
+            color: #e53e3e;
+            transform: scale(1.1);
+        }
+
+        /* Estilos para navegación */
+        .nav-link {
+            color: #718096;
+            text-decoration: none;
+        }
+
+        .nav-link:hover {
+            background: #f7fafc;
+            color: #2d3748;
+        }
+
+        .nav-link.active {
+            background: #3b82f6;
+            color: white;
+        }
+        
+        .gradient-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .page-content {
+            transition: all 0.3s ease;
+        }
+
+        .page-content.hidden {
+            display: none;
+        }
+
+        /* Estilos para matriz de relaciones */
+        .matrix-table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 1rem 0;
+        }
+
+        .matrix-table th,
+        .matrix-table td {
+            border: 1px solid #e2e8f0;
+            padding: 0.75rem;
+            text-align: center;
+            font-size: 0.875rem;
+        }
+
+        .matrix-table th {
+            background: #f7fafc;
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .relation-cell {
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .relation-cell:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .relation-cell.alianza {
+            background: linear-gradient(135deg, #c6f6d5, #9ae6b4);
+            color: #22543d;
+        }
+
+        .relation-cell.conflicto {
+            background: linear-gradient(135deg, #fed7d7, #feb2b2);
+            color: #742a2a;
+        }
+
+        .relation-cell.supervision {
+            background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+            color: #1e3a8a;
+        }
+
+        .relation-cell.colaboracion {
+            background: linear-gradient(135deg, #e0f2fe, #b3e5fc);
+            color: #0c4a6e;
+        }
+
+        .actor-checkbox {
+            transform: scale(1.2);
+            margin-right: 0.5rem;
+        }
+
+        .actor-label {
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 0.5rem;
+            transition: background 0.3s ease;
+        }
+
+        .actor-label:hover {
+            background: #f7fafc;
+        }
+
+        .citation {
+            font-style: italic;
+            color: #4a5568;
+            background: #f7fafc;
+            padding: 0.75rem;
+            border-left: 4px solid #4299e1;
+            margin: 1rem 0;
+            border-radius: 0 0.5rem 0.5rem 0;
+        }
+
+        .detailed-section {
+            border: 1px solid #e2e8f0;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            background: #fafafa;
+        }
+
+        .impact-indicator {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .impact-alto {
+            background: #fed7d7;
+            color: #742a2a;
+        }
+
+        .impact-medio {
+            background: #fef3cd;
+            color: #975a16;
+        }
+
+        .impact-bajo {
+            background: #c6f6d5;
+            color: #22543d;
+        }
+
+        /* Estilos específicos para análisis de actores */
+        .actor-card {
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .actor-card:hover {
+            border-color: #4299e1;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+        }
+
+        .actor-card.selected {
+            border-color: #3182ce;
+            background: linear-gradient(135deg, #ebf8ff, #bee3f8);
+        }
+
+        .dimension-card {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.75rem;
+            padding: 1.25rem;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .dimension-card:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transform: translateY(-1px);
+        }
+
+        .dimension-title {
+            font-weight: 600;
+            color: #2d3748;
+            font-size: 1.125rem;
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .power-meter {
+            height: 8px;
+            background: #e2e8f0;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 0.5rem 0;
+        }
+
+        .power-fill {
+            height: 100%;
+            transition: width 0.8s ease;
+            border-radius: 4px;
+        }
+
+        .power-alto { background: linear-gradient(90deg, #f56565, #e53e3e); }
+        .power-medio { background: linear-gradient(90deg, #ed8936, #dd6b20); }
+        .power-bajo { background: linear-gradient(90deg, #48bb78, #38a169); }
+
+        .disposition-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .disposition-alta {
+            background: #c6f6d5;
+            color: #22543d;
+        }
+
+        .disposition-media {
+            background: #fef3cd;
+            color: #975a16;
+        }
+
+        .disposition-baja {
+            background: #fed7d7;
+            color: #742a2a;
+        }
+
+        .comparative-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem;
+            background: #f7fafc;
+            border-radius: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .comparative-item:hover {
+            background: #edf2f7;
+        }
+
+        .summary-section {
+            background: linear-gradient(135deg, #f0fff4, #f7fafc);
+            border: 1px solid #9ae6b4;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+        }
+        
+        /* Estilos específicos para análisis de actores */
+        .actor-card {
+            background: linear-gradient(145deg, #f8fafc, #f1f5f9);
+            border: 2px solid #e2e8f0;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .actor-card:hover {
+            border-color: #3b82f6;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+            transform: translateY(-2px);
+        }
+        
+        .actor-card.selected {
+            border-color: #2563eb;
+            background: linear-gradient(145deg, #dbeafe, #bfdbfe);
+            box-shadow: 0 6px 16px rgba(37, 99, 235, 0.25);
+        }
+        
+        .dimension-card {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            transition: box-shadow 0.3s ease;
+        }
+        
+        .dimension-card:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .dimension-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #f3f4f6;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .power-meter {
+            background: #f1f5f9;
+            border-radius: 10px;
+            height: 8px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .power-fill {
+            height: 100%;
+            border-radius: 10px;
+            transition: width 0.8s ease;
+        }
+        
+        .power-muy-alto { background: linear-gradient(90deg, #dc2626, #ef4444); }
+        .power-alto { background: linear-gradient(90deg, #ea580c, #f97316); }
+        .power-medio { background: linear-gradient(90deg, #ca8a04, #eab308); }
+        .power-bajo { background: linear-gradient(90deg, #16a34a, #22c55e); }
+        
+        .disposition-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .disposition-alta {
+            background: linear-gradient(135deg, #dcfce7, #bbf7d0);
+            color: #166534;
+            border: 1px solid #22c55e;
+        }
+        
+        .disposition-media {
+            background: linear-gradient(135deg, #fef3c7, #fde68a);
+            color: #92400e;
+            border: 1px solid #f59e0b;
+        }
+        
+        .disposition-baja {
+            background: linear-gradient(135deg, #fee2e2, #fecaca);
+            color: #991b1b;
+            border: 1px solid #ef4444;
+        }
+        
+        .comparative-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            background: #f8fafc;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .citation {
+            background: #f8fafc;
+            border-left: 4px solid #3b82f6;
+            padding: 12px 16px;
+            border-radius: 4px;
+            font-size: 13px;
+            line-height: 1.5;
+            color: #374151;
+            font-style: italic;
+        }
+        
+        #detailedActorAnalysis {
+            max-height: 80vh;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: #cbd5e1 #f1f5f9;
+        }
+        
+        #detailedActorAnalysis::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        #detailedActorAnalysis::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 4px;
+        }
+        
+        #detailedActorAnalysis::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        
+        #detailedActorAnalysis::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 min-h-screen">
+
+<!-- Header -->
+<header class="gradient-header shadow-lg">
+    <div class="max-w-7xl mx-auto px-4 py-6">
+        <div class="text-center">
+            <h1 class="text-4xl font-bold mb-2">Caso Arhuaco - Análisis ACCP</h1>
+            <p class="text-xl opacity-90">Análisis del Conflicto de Representación</p>
+            <p class="text-sm opacity-75 mt-2">Sentencia SU-419 de 2024 - Metodología ACCP</p>
+        </div>
+    </div>
+</header>
+
+<!-- Navigation -->
+<nav class="bg-white shadow-md border-b border-gray-200">
+    <div class="max-w-7xl mx-auto px-4">
+        <div class="flex justify-center space-x-8 py-4">
+            <a href="contexto_conflicto_arhuaco.html" class="nav-link px-6 py-2 rounded-lg font-semibold transition-colors hover:bg-gray-200">
+                📋 Contexto del Conflicto
+            </a>
+            <a href="mapa_conflicto_arhuaco.html" class="nav-link px-6 py-2 rounded-lg font-semibold transition-colors hover:bg-gray-200" id="mapaNavLink">
+                🗺️ Mapa Interactivo
+            </a>
+            <a href="mapa_conflicto_arhuaco.html?page=actor-analysis" class="nav-link px-6 py-2 rounded-lg font-semibold transition-colors hover:bg-gray-200" id="actoresNavLink">
+                📊 Análisis de Actores
+            </a>
+            <a href="analisis_causas_conflicto.html" class="nav-link px-6 py-2 rounded-lg font-semibold transition-colors hover:bg-gray-200">
+                🔍 Análisis de Causas
+            </a>
+        </div>
+    </div>
+</nav>
+
+<div class="max-w-7xl mx-auto px-4 py-8">
+    <!-- Página del Mapa de Conflicto -->
+    <div id="mapa-page" class="page-content" data-page="mapa">
+    <header class="text-center bg-white rounded-2xl p-6 shadow-lg">
+        <h1 class="text-3xl lg:text-4xl font-bold text-gray-800 mb-2">Mapa de Conflicto: Caso Arhuaco</h1>
+        <p class="text-gray-600 mb-1">Controversia por la designación de Zarwawiko Torres Torres como cabildo gobernador</p>
+        <p class="text-sm text-gray-500">Análisis aplicando la herramienta ACCP a la luz de la Sentencia SU419 de 2024</p>
+    </header>
+
+    <main class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <section class="lg:col-span-2 space-y-6">
+            <div class="canvas-container" style="height: 600px;">
+                <canvas id="conflictMap"></canvas>
+                <div id="tooltip" class="tooltip hidden"></div>
+            </div>
+            
+            <div class="bg-white p-6 border border-gray-200 rounded-2xl shadow-lg">
+                <h2 class="text-xl font-semibold mb-4 text-gray-800">Leyenda de Relaciones</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="flex items-center">
+                        <div class="legend-color bg-green-500"></div>
+                        <span class="text-sm">Alianza/Apoyo</span>
+                    </div>
+                    <div class="flex items-center">
+                        <div class="legend-color bg-red-500"></div>
+                        <span class="text-sm">Conflicto/Tensión</span>
+                    </div>
+                    <div class="flex items-center">
+                        <div class="legend-color bg-blue-500"></div>
+                        <span class="text-sm">Supervisión/Mandato</span>
+                    </div>
+                    <div class="flex items-center">
+                        <div class="legend-color bg-yellow-500"></div>
+                        <span class="text-sm">Desconocimiento</span>
+                    </div>
+                    <div class="flex items-center">
+                        <div class="legend-color bg-purple-500"></div>
+                        <span class="text-sm">Control/Verificación</span>
+                    </div>
+                    <div class="flex items-center">
+                        <div class="legend-color bg-cyan-500"></div>
+                        <span class="text-sm">Colaboración</span>
+                    </div>
+                </div>
+                <div class="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                    <p class="text-sm text-blue-800">
+                        <strong>💡 Interactividad:</strong> Haz clic en los actores para ver información detallada. 
+                        Haz clic en las líneas de relación para ver detalles específicos del conflicto.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <aside class="space-y-6">
+            <div class="bg-white rounded-2xl p-6 shadow-lg">
+                <h2 class="text-2xl font-semibold text-gray-800 mb-4">Actores del Conflicto</h2>
+                <div id="actorsList" class="space-y-3">
+                    <!-- Actor info will be dynamically injected here -->
+                </div>
+            </div>
+        </aside>
+    </div>
+    <!-- Fin de Página del Mapa de Conflicto -->
+
+    <!-- Página de Análisis de Relaciones -->
+    <div id="analisis-page" class="page-content hidden" data-page="analisis">
+        <header class="text-center bg-white rounded-2xl p-6 shadow-lg">
+            <h1 class="text-3xl lg:text-4xl font-bold text-gray-800 mb-2">Análisis de Actores - Caso Arhuaco</h1>
+            <p class="text-gray-600 mb-1">Estudio detallado de posiciones, intereses y necesidades de cada actor</p>
+            <p class="text-sm text-gray-500">Basado en la Sentencia SU419 de 2024 y análisis ACCP</p>
+        </header>
+
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 mt-8">
+            <!-- Panel de Selección de Actores -->
+            <div class="lg:col-span-1">
+                <div class="bg-white rounded-2xl p-6 shadow-lg sticky top-4">
+                    <h2 class="text-xl font-semibold mb-4 text-gray-800">Seleccionar Actor</h2>
+                    <div id="actorAnalysisSelector" class="space-y-2">
+                        <!-- Selectores de actores se generarán aquí -->
+                    </div>
+                    
+                    <div class="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                        <h3 class="font-semibold text-blue-800 mb-2">📋 Metodología ACCP</h3>
+                        <p class="text-xs text-blue-700">
+                            El análisis incluye las 6 dimensiones clave para entender la dinámica de cada actor en el conflicto.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Panel Principal de Análisis -->
+            <div class="lg:col-span-3">
+                <!-- Tabla Resumen -->
+                <div class="bg-white rounded-2xl p-6 shadow-lg mb-6">
+                    <h2 class="text-2xl font-semibold mb-6 text-gray-800">📊 Matriz de Análisis de Actores</h2>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full border-collapse">
+                            <thead>
+                                <tr class="bg-gray-50">
+                                    <th class="border border-gray-300 px-4 py-3 text-left font-semibold text-gray-800">Actor</th>
+                                    <th class="border border-gray-300 px-4 py-3 text-left font-semibold text-gray-800">Posición</th>
+                                    <th class="border border-gray-300 px-4 py-3 text-left font-semibold text-gray-800">Interés Principal</th>
+                                    <th class="border border-gray-300 px-4 py-3 text-left font-semibold text-gray-800">Poder/Influencia</th>
+                                    <th class="border border-gray-300 px-4 py-3 text-left font-semibold text-gray-800">Disposición</th>
+                                </tr>
+                            </thead>
+                            <tbody id="actorMatrixBody">
+                                <!-- Contenido se generará dinámicamente -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Panel de Análisis Detallado por Actor -->
+                <div id="detailedActorAnalysis" class="bg-white rounded-2xl p-6 shadow-lg hidden">
+                    <div id="detailedActorContent">
+                        <!-- Contenido detallado se mostrará aquí -->
+                    </div>
+                </div>
+
+                <!-- Panel de Análisis Comparativo -->
+                <div class="bg-white rounded-2xl p-6 shadow-lg">
+                    <h2 class="text-2xl font-semibold mb-6 text-gray-800">🔍 Análisis Comparativo</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="space-y-4">
+                            <h3 class="text-lg font-semibold text-gray-800">💪 Actores con Mayor Poder</h3>
+                            <div id="powerAnalysis" class="space-y-2">
+                                <!-- Análisis de poder se generará aquí -->
+                            </div>
+                        </div>
+                        
+                        <div class="space-y-4">
+                            <h3 class="text-lg font-semibold text-gray-800">🤝 Disposición para Negociar</h3>
+                            <div id="negotiationAnalysis" class="space-y-2">
+                                <!-- Análisis de negociación se generará aquí -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-6 p-4 bg-gray-50 rounded-lg">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-3">📈 Conclusiones del Análisis ACCP</h3>
+                        <div class="space-y-3 text-sm text-gray-700">
+                            <p><strong>Conflicto Principal:</strong> El núcleo del conflicto no es espiritual sino político, centrado en la resistencia del Ministerio del Interior a reconocer decisiones autónomas de los Mamos.</p>
+                            <p><strong>Actores Clave:</strong> Los Mamos poseen la legitimidad tradicional y constitucional, mientras que el Ministerio del Interior mantiene el poder administrativo.</p>
+                            <p><strong>Punto de Inflexión:</strong> La Sentencia SU419/2024 establece un marco normativo que favorece la autonomía indígena, pero requiere cumplimiento efectivo.</p>
+                            <p><strong>Recomendación:</strong> Priorizar el diálogo directo entre Mamos y autoridades estatales con mediación de las entidades de control.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Fin de Página de Análisis de Relaciones -->
+
+</div>
+
+<!-- Panel lateral para relaciones -->
+<div id="relationshipPanel" class="relationship-panel">
+    <button id="closeRelPanel" class="close-btn">
+        ✕
+    </button>
+    <div id="relationshipContent">
+        <h3 class="text-xl font-semibold mb-4 text-gray-800">Detalles de la Relación</h3>
+        <p class="text-gray-600">Haz clic en una línea de relación para ver información específica.</p>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const canvas = document.getElementById('conflictMap');
+    const ctx = canvas.getContext('2d');
+    const tooltip = document.getElementById('tooltip');
+    const actorsList = document.getElementById('actorsList');
+    const relationshipPanel = document.getElementById('relationshipPanel');
+    const relationshipContent = document.getElementById('relationshipContent');
+    const closeRelPanel = document.getElementById('closeRelPanel');
+
+    // Definición de actores basada en el análisis ACCP
+    const actors = [
+        { 
+            id: 'mamos', 
+            name: 'Mamos', 
+            shortName: 'Mamos',
+            description: 'Autoridades espirituales y políticas supremas del pueblo Arhuaco, guardianes de la Ley de Origen y responsables de definir la representación legítima. 134 Mamos participaron en Simonorwa.',
+            type: 'indigena',
+            x: 0, y: 0, radius: 55, 
+            color: '#10B981', 
+            borderColor: '#065F46'
+        },
+        { 
+            id: 'zarwawiko', 
+            name: 'Zarwawiko Torres', 
+            shortName: 'Zarwawiko',
+            description: 'Cabildo Gobernador elegido en 2020 durante COVID-19, ratificado transitoriamente por los Mamos en Simonorwa (enero 2025), pero el Ministerio se niega a registrar esta decisión.',
+            type: 'indigena',
+            x: 0, y: 0, radius: 50, 
+            color: '#059669', 
+            borderColor: '#064E3B'
+        },
+        { 
+            id: 'mininterior', 
+            name: 'Ministerio del Interior', 
+            shortName: 'Min. Interior',
+            description: 'Entidad que inscribió a Zarwawiko en 2020 pero se negó a registrar la decisión autónoma de los Mamos en 2025. La Corte lo señaló por vulnerar autonomía.',
+            type: 'gobierno',
+            x: 0, y: 0, radius: 50, 
+            color: '#3B82F6', 
+            borderColor: '#1E40AF'
+        },
+        { 
+            id: 'corte', 
+            name: 'Corte Constitucional', 
+            shortName: 'Corte',
+            description: 'Emitió la Sentencia SU419/2024 declarando vulneración de autonomía del pueblo Arhuaco. Diseñó remedio escalonado devolviendo decisión a los Mamos.',
+            type: 'juridico',
+            x: 0, y: 0, radius: 55, 
+            color: '#8B5CF6', 
+            borderColor: '#5B21B6'
+        },
+        { 
+            id: 'lideres_pugna', 
+            name: 'Líderes Políticos en Pugna', 
+            shortName: 'Líderes Pugna',
+            description: 'Sectores políticos del pueblo Arhuaco que cuestionan legitimidad. Según los Mamos, son quienes realmente están en conflicto, no las autoridades espirituales.',
+            type: 'indigena',
+            x: 0, y: 0, radius: 45, 
+            color: '#F59E0B', 
+            borderColor: '#92400E'
+        },
+        { 
+            id: 'defensoria', 
+            name: 'Defensoría del Pueblo', 
+            shortName: 'Defensoría',
+            description: 'Entidad de control encargada por la Corte de acompañar y verificar cumplimiento. Documentó que el conflicto es político, no espiritual.',
+            type: 'juridico',
+            x: 0, y: 0, radius: 45, 
+            color: '#06B6D4', 
+            borderColor: '#0E7490'
+        },
+        { 
+            id: 'procuraduria', 
+            name: 'Procuraduría General', 
+            shortName: 'Procuraduría',
+            description: 'Entidad de control que debe velar por el respeto de la autonomía indígena durante implementación del remedio escalonado.',
+            type: 'juridico',
+            x: 0, y: 0, radius: 45, 
+            color: '#7C3AED', 
+            borderColor: '#4C1D95'
+        },
+        { 
+            id: 'comunidad', 
+            name: 'Comunidad Arhuaca', 
+            shortName: 'Comunidad',
+            description: 'Titular de derechos colectivos del Resguardo Arhuaco de la Sierra Nevada de Santa Marta. Busca superar divisiones internas.',
+            type: 'indigena',
+            x: 0, y: 0, radius: 48, 
+            color: '#22C55E', 
+            borderColor: '#15803D'
+        }
+    ];
+
+    // Definición de relaciones específicas del caso
+    const relationships = [
+        { 
+            from: 'corte', to: 'mamos', 
+            type: 'alianza', 
+            color: '#10B981', 
+            width: 4,
+            label: 'Reconocimiento de autoridad legítima',
+            description: 'La Corte reconoce a los Mamos como autoridades espirituales supremas responsables de definir la representación legítima del pueblo Arhuaco',
+            context: 'Sentencia SU419/2024 establece que los Mamos deben resolver la controversia en ejercicio de su autonomía',
+            impact: 'Fortalece la autonomía indígena y el autogobierno'
+        },
+        { 
+            from: 'corte', to: 'mininterior', 
+            type: 'supervision', 
+            color: '#F59E0B', 
+            width: 5,
+            label: 'Orden de abstención de injerencias',
+            description: 'La Corte ordenó al Ministerio abstenerse de injerencias en procesos propios, limitándose a garantizar condiciones materiales',
+            context: 'Ministerio vulneró autonomía al intervenir en proceso con tensiones internas',
+            impact: 'Restringe intervención estatal en decisiones autónomas'
+        },
+        { 
+            from: 'mamos', to: 'mininterior', 
+            type: 'conflicto', 
+            color: '#EF4444', 
+            width: 6,
+            label: 'Desconocimiento de decisión autónoma',
+            description: 'El Ministerio se niega a registrar la decisión transitoria de los Mamos tomada en Simonorwa (enero 2025)',
+            context: 'A pesar de cumplir con lo ordenado por la Corte, Ministerio alega persistencia de conflicto interno',
+            impact: 'Crisis de legitimidad y debilitamiento del autogobierno indígena'
+        },
+        { 
+            from: 'mamos', to: 'zarwawiko', 
+            type: 'alianza', 
+            color: '#10B981', 
+            width: 4,
+            label: 'Ratificación transitoria',
+            description: '134 Mamos ratificaron transitoriamente a Zarwawiko en asamblea autónoma de Simonorwa',
+            context: 'Decisión para atender asuntos urgentes como salud, educación y agua potable',
+            impact: 'Legitimidad espiritual pero falta reconocimiento estatal'
+        },
+        { 
+            from: 'mamos', to: 'lideres_pugna', 
+            type: 'conflicto', 
+            color: '#EF4444', 
+            width: 4,
+            label: 'Oposición política interna',
+            description: 'Los Mamos afirman categóricamente que el conflicto es con algunos líderes políticos, no entre autoridades espirituales',
+            context: 'División entre autoridad espiritual tradicional y sectores políticos del pueblo',
+            impact: 'Fragmentación interna que debilita la unidad comunitaria'
+        },
+        { 
+            from: 'zarwawiko', to: 'lideres_pugna', 
+            type: 'conflicto', 
+            color: '#DC2626', 
+            width: 4,
+            label: 'Cuestionamiento de legitimidad',
+            description: 'Líderes políticos cuestionan la legitimidad de Zarwawiko como cabildo gobernador',
+            context: 'Conflicto político por representación legal del resguardo',
+            impact: 'Debilita la representación unificada del pueblo'
+        },
+        { 
+            from: 'corte', to: 'defensoria', 
+            type: 'colaboracion', 
+            color: '#06B6D4', 
+            width: 3,
+            label: 'Encargo de acompañamiento',
+            description: 'La Corte encargó a la Defensoría acompañar y verificar cumplimiento de la sentencia',
+            context: 'Defensoría debe velar por respeto de autonomía indígena durante implementación',
+            impact: 'Garantía institucional de protección de derechos'
+        },
+        { 
+            from: 'corte', to: 'procuraduria', 
+            type: 'colaboracion', 
+            color: '#7C3AED', 
+            width: 3,
+            label: 'Verificación de cumplimiento',
+            description: 'Procuraduría debe vigilar que funcionarios respeten decisiones autónomas de los Mamos',
+            context: 'Control disciplinario para garantizar cumplimiento de órdenes constitucionales',
+            impact: 'Supervisión del comportamiento de entidades estatales'
+        },
+        { 
+            from: 'defensoria', to: 'procuraduria', 
+            type: 'colaboracion', 
+            color: '#8B5CF6', 
+            width: 3,
+            label: 'Coordinación de entidades de control',
+            description: 'Ambas entidades deben coordinarse para acompañar proceso de implementación',
+            context: 'Trabajo conjunto para garantizar respeto de autonomía indígena',
+            impact: 'Fortalecimiento del sistema de protección de derechos'
+        },
+        { 
+            from: 'mamos', to: 'comunidad', 
+            type: 'supervision', 
+            color: '#10B981', 
+            width: 4,
+            label: 'Autoridad espiritual suprema',
+            description: 'Los Mamos son las autoridades espirituales y políticas supremas del pueblo Arhuaco',
+            context: 'Reconocidos constitucionalmente como guardianes de la Ley de Origen',
+            impact: 'Legitimidad tradicional y espiritual del autogobierno'
+        },
+        { 
+            from: 'comunidad', to: 'zarwawiko', 
+            type: 'conflicto', 
+            color: '#F59E0B', 
+            width: 4,
+            label: 'División comunitaria sobre legitimidad',
+            description: 'La comunidad está dividida sobre la legitimidad de la representación legal de Zarwawiko',
+            context: 'Sectores de la comunidad cuestionan la representación mientras otros la apoyan',
+            impact: 'Fragmentación que debilita la cohesión social del pueblo'
+        },
+        { 
+            from: 'corte', to: 'comunidad', 
+            type: 'alianza', 
+            color: '#10B981', 
+            width: 4,
+            label: 'Protección de derechos colectivos',
+            description: 'La Corte reconoce a la comunidad Arhuaca como titular de derechos colectivos y protege su autonomía',
+            context: 'Sentencia SU419/2024 busca restablecer autogobierno y proteger diversidad étnica',
+            impact: 'Garantía constitucional de derechos fundamentales del pueblo'
+        },
+        { 
+            from: 'lideres_pugna', to: 'comunidad', 
+            type: 'conflicto', 
+            color: '#EF4444', 
+            width: 4,
+            label: 'Tensión política interna',
+            description: 'Líderes políticos generan división interna en sectores de la comunidad por legitimidad del liderazgo',
+            context: 'Conflicto político que afecta la unidad tradicional del pueblo Arhuaco',
+            impact: 'Debilitamiento de la cohesión comunitaria y el autogobierno'
+        },
+        { 
+            from: 'defensoria', to: 'comunidad', 
+            type: 'alianza', 
+            color: '#06B6D4', 
+            width: 3,
+            label: 'Acompañamiento y protección',
+            description: 'Defensoría acompañó proceso autónomo en Simonorwa y protege derechos comunitarios',
+            context: 'Entidad garante de derechos humanos que verifica respeto a autonomía indígena',
+            impact: 'Protección institucional de procesos autónomos del pueblo'
+        }
+    ];
+
+    const actorMap = new Map(actors.map(actor => [actor.id, actor]));
+    let selectedActor = null;
+    let hoveredRelationship = null;
+    let activeRelationships = [];
+
+    function resizeCanvas() {
+        const parent = canvas.parentElement;
+        canvas.width = parent.clientWidth;
+        canvas.height = parent.clientHeight;
+        positionActors();
+        draw();
+    }
+
+    function positionActors() {
+        const centerX = canvas.width / 2;
+        const centerY = canvas.height / 2;
+        const radius = Math.min(centerX, centerY) * 0.75;
+        const angleStep = (2 * Math.PI) / actors.length;
+
+        actors.forEach((actor, index) => {
+            const angle = index * angleStep - Math.PI / 2; // Start from top
+            actor.x = centerX + radius * Math.cos(angle);
+            actor.y = centerY + radius * Math.sin(angle);
+        });
+    }
+
+    function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        // Draw relationships
+        relationships.forEach((rel, index) => {
+            const fromActor = actorMap.get(rel.from);
+            const toActor = actorMap.get(rel.to);
+            if (fromActor && toActor) {
+                const isActive = activeRelationships.includes(index);
+                const isHovered = hoveredRelationship === index;
+                
+                // Calculate connection points on circle edges
+                const dx = toActor.x - fromActor.x;
+                const dy = toActor.y - fromActor.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                const unitX = dx / distance;
+                const unitY = dy / distance;
+                
+                const startX = fromActor.x + unitX * fromActor.radius;
+                const startY = fromActor.y + unitY * fromActor.radius;
+                const endX = toActor.x - unitX * toActor.radius;
+                const endY = toActor.y - unitY * toActor.radius;
+
+                // Draw line
+                ctx.beginPath();
+                ctx.moveTo(startX, startY);
+                ctx.lineTo(endX, endY);
+                ctx.strokeStyle = rel.color;
+                ctx.lineWidth = isActive ? rel.width + 2 : (isHovered ? rel.width + 1 : rel.width);
+                ctx.globalAlpha = isActive ? 1 : (isHovered ? 0.9 : 0.7);
+                ctx.stroke();
+                ctx.globalAlpha = 1;
+
+                // Draw arrow
+                const angle = Math.atan2(dy, dx);
+                const headLength = 12;
+                ctx.beginPath();
+                ctx.moveTo(endX, endY);
+                ctx.lineTo(endX - headLength * Math.cos(angle - Math.PI / 6), endY - headLength * Math.sin(angle - Math.PI / 6));
+                ctx.lineTo(endX - headLength * Math.cos(angle + Math.PI / 6), endY - headLength * Math.sin(angle + Math.PI / 6));
+                ctx.closePath();
+                ctx.fillStyle = rel.color;
+                ctx.fill();
+            }
+        });
+
+        // Draw actors
+        actors.forEach(actor => {
+            const isSelected = selectedActor === actor.id;
+            const radius = isSelected ? actor.radius + 5 : actor.radius;
+            
+            // Shadow
+            ctx.beginPath();
+            ctx.arc(actor.x + 3, actor.y + 3, radius, 0, 2 * Math.PI);
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+            ctx.fill();
+            
+            // Main circle
+            ctx.beginPath();
+            ctx.arc(actor.x, actor.y, radius, 0, 2 * Math.PI);
+            ctx.fillStyle = actor.color;
+            ctx.fill();
+            
+            // Border
+            ctx.strokeStyle = isSelected ? '#ffffff' : actor.borderColor;
+            ctx.lineWidth = isSelected ? 4 : 3;
+            ctx.stroke();
+
+            // Text
+            ctx.fillStyle = '#ffffff';
+            ctx.font = 'bold 12px Inter, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            
+            // Multi-line text for long names
+            const words = actor.shortName.split(' ');
+            if (words.length > 1 && actor.shortName.length > 10) {
+                ctx.fillText(words[0], actor.x, actor.y - 6);
+                ctx.fillText(words.slice(1).join(' '), actor.x, actor.y + 6);
+            } else {
+                ctx.fillText(actor.shortName, actor.x, actor.y);
+            }
+        });
+    }
+
+    function getRelationshipAtPoint(x, y) {
+        const threshold = 10;
+        
+        for (let i = 0; i < relationships.length; i++) {
+            const rel = relationships[i];
+            const fromActor = actorMap.get(rel.from);
+            const toActor = actorMap.get(rel.to);
+            
+            if (fromActor && toActor) {
+                const distance = distanceToLineSegment(x, y, fromActor.x, fromActor.y, toActor.x, toActor.y);
+                if (distance <= threshold) {
+                    return i;
+                }
+            }
+        }
+        return null;
+    }
+
+    function distanceToLineSegment(px, py, x1, y1, x2, y2) {
+        const A = px - x1;
+        const B = py - y1;
+        const C = x2 - x1;
+        const D = y2 - y1;
+
+        const dot = A * C + B * D;
+        const lenSq = C * C + D * D;
+        let param = -1;
+        if (lenSq !== 0) param = dot / lenSq;
+
+        let xx, yy;
+        if (param < 0) {
+            xx = x1;
+            yy = y1;
+        } else if (param > 1) {
+            xx = x2;
+            yy = y2;
+        } else {
+            xx = x1 + param * C;
+            yy = y1 + param * D;
+        }
+
+        const dx = px - xx;
+        const dy = py - yy;
+        return Math.sqrt(dx * dx + dy * dy);
+    }
+
+    function showRelationshipDetails(relationshipIndex) {
+        const rel = relationships[relationshipIndex];
+        const fromActor = actorMap.get(rel.from);
+        const toActor = actorMap.get(rel.to);
+        
+        const typeLabels = {
+            'alianza': '🤝 Alianza/Apoyo',
+            'conflicto': '⚡ Conflicto/Tensión',
+            'supervision': '👁️ Supervisión/Mandato',
+            'colaboracion': '🔄 Colaboración'
+        };
+
+        relationshipContent.innerHTML = `
+            <h3 class="text-xl font-semibold mb-4 text-gray-800">Relación: ${fromActor.name} → ${toActor.name}</h3>
+            
+            <div class="mb-4 p-3 rounded-lg" style="background-color: ${rel.color}20; border-left: 4px solid ${rel.color};">
+                <h4 class="font-semibold text-gray-800 mb-2">${typeLabels[rel.type] || rel.type}</h4>
+                <p class="text-sm font-medium text-gray-700">${rel.label}</p>
+            </div>
+            
+            <div class="space-y-4">
+                <div>
+                    <h5 class="font-semibold text-gray-800 mb-2">📋 Descripción</h5>
+                    <p class="text-sm text-gray-600">${rel.description}</p>
+                </div>
+                
+                <div>
+                    <h5 class="font-semibold text-gray-800 mb-2">🎯 Contexto</h5>
+                    <p class="text-sm text-gray-600">${rel.context}</p>
+                </div>
+                
+                <div>
+                    <h5 class="font-semibold text-gray-800 mb-2">📊 Impacto</h5>
+                    <p class="text-sm text-gray-600">${rel.impact}</p>
+                </div>
+            </div>
+            
+            <div class="mt-6 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                <p class="text-xs text-blue-800">
+                    <strong>Análisis ACCP:</strong> Esta relación es ${rel.type === 'conflicto' ? 'una línea de tensión clave' : 'un elemento de estabilización'} 
+                    en la dinámica del conflicto Arhuaco.
+                </p>
+            </div>
+        `;
+        
+        relationshipPanel.classList.add('active');
+        
+        // Highlight related relationships
+        activeRelationships = [relationshipIndex];
+        draw();
+    }
+
+    function handleMouseMove(e) {
+        const rect = canvas.getBoundingClientRect();
+        const mouseX = e.clientX - rect.left;
+        const mouseY = e.clientY - rect.top;
+
+        // Check for actor hover
+        let foundActor = null;
+        for (const actor of actors) {
+            const distance = Math.sqrt((mouseX - actor.x) ** 2 + (mouseY - actor.y) ** 2);
+            if (distance < actor.radius) {
+                foundActor = actor;
+                break;
+            }
+        }
+
+        // Check for relationship hover
+        const relationshipIndex = getRelationshipAtPoint(mouseX, mouseY);
+        
+        if (foundActor) {
+            canvas.style.cursor = 'pointer';
+            tooltip.style.left = `${e.clientX}px`;
+            tooltip.style.top = `${e.clientY}px`;
+            tooltip.innerHTML = `<strong>${foundActor.name}</strong><br>${foundActor.description}`;
+            tooltip.classList.remove('hidden');
+            hoveredRelationship = null;
+        } else if (relationshipIndex !== null) {
+            canvas.style.cursor = 'pointer';
+            const rel = relationships[relationshipIndex];
+            tooltip.style.left = `${e.clientX}px`;
+            tooltip.style.top = `${e.clientY}px`;
+            tooltip.innerHTML = `<strong>${rel.label}</strong><br>Clic para ver detalles`;
+            tooltip.classList.remove('hidden');
+            hoveredRelationship = relationshipIndex;
+        } else {
+            canvas.style.cursor = 'default';
+            tooltip.classList.add('hidden');
+            hoveredRelationship = null;
+        }
+
+        draw();
+    }
+
+    function handleClick(e) {
+        const rect = canvas.getBoundingClientRect();
+        const mouseX = e.clientX - rect.left;
+        const mouseY = e.clientY - rect.top;
+
+        // Check for actor click
+        let foundActor = null;
+        for (const actor of actors) {
+            const distance = Math.sqrt((mouseX - actor.x) ** 2 + (mouseY - actor.y) ** 2);
+            if (distance < actor.radius) {
+                foundActor = actor;
+                break;
+            }
+        }
+
+        // Check for relationship click
+        const relationshipIndex = getRelationshipAtPoint(mouseX, mouseY);
+        
+        if (foundActor) {
+            selectedActor = selectedActor === foundActor.id ? null : foundActor.id;
+            updateActorsList();
+            draw();
+        } else if (relationshipIndex !== null) {
+            showRelationshipDetails(relationshipIndex);
+        } else {
+            selectedActor = null;
+            updateActorsList();
+            draw();
+        }
+    }
+
+    function updateActorsList() {
+        actorsList.innerHTML = '';
+        actors.forEach(actor => {
+            const isSelected = selectedActor === actor.id;
+            const div = document.createElement('div');
+            div.className = `actor-info ${isSelected ? 'active' : ''}`;
+            div.innerHTML = `
+                <div class="actor-title">${actor.name}</div>
+                <p class="text-gray-600 text-sm">${actor.description}</p>
+            `;
+            div.addEventListener('click', () => {
+                selectedActor = selectedActor === actor.id ? null : actor.id;
+                updateActorsList();
+                draw();
+            });
+            actorsList.appendChild(div);
+        });
+    }
+
+    // Event listeners
+    closeRelPanel.addEventListener('click', () => {
+        relationshipPanel.classList.remove('active');
+        activeRelationships = [];
+        draw();
+    });
+
+    window.addEventListener('resize', resizeCanvas);
+    canvas.addEventListener('mousemove', handleMouseMove);
+    canvas.addEventListener('click', handleClick);
+
+    // Initialize
+    resizeCanvas();
+    updateActorsList();
+    initializeRelationshipAnalysis();
+});
+
+// Funcionalidad de análisis de relaciones
+function initializeRelationshipAnalysis() {
+    createActorAnalysisData();
+    createActorAnalysisSelector();
+    createActorMatrix();
+    createComparativeAnalysis();
+}
+
+// Datos detallados de actores basados en el documento PDF
+const actorAnalysisData = {
+    mamos: {
+        name: 'Mamos - Autoridades Espirituales',
+        grupo: 'Autoridades Tradicionales Indígenas',
+        posicion: 'Defensa de la autonomía espiritual y decisión transitoria sobre Zarwawiko Torres',
+        intereses: [
+            'Protección de la Ley de Origen y tradiciones ancestrales',
+            'Ejercicio pleno de la autonomía sin injerencias externas',
+            'Unidad del pueblo Arhuaco bajo autoridad espiritual',
+            'Reconocimiento estatal de sus decisiones autónomas'
+        ],
+        necesidades: [
+            'Reconocimiento constitucional efectivo de su autoridad',
+            'Espacios libres de interferencia política para decisiones espirituales',
+            'Fortalecimiento de la cohesión comunitaria',
+            'Garantías para el ejercicio del autogobierno'
+        ],
+        problemas: [
+            'Desconocimiento estatal de la decisión de Simonorwa',
+            'Interferencia política en procesos espirituales tradicionales',
+            'División interna generada por líderes políticos',
+            'Limitaciones durante COVID-19 para procesos tradicionales'
+        ],
+        poder: 'Alto',
+        nivelPoder: 90,
+        fuentes_poder: [
+            'Legitimidad constitucional reconocida por la Corte Constitucional',
+            'Autoridad espiritual tradicional sobre el pueblo Arhuaco',
+            'Respaldo de 134 Mamos en asamblea de Simonorwa',
+            'Reconocimiento jurisprudencial como guardianes de la Ley de Origen'
+        ],
+        disposicion: 'Alta',
+        disposicion_detalle: 'Demuestran apertura al diálogo cumpliendo órdenes de la Corte y realizando asamblea autónoma',
+        citas: [
+            'Corte Constitucional. (2024). Sentencia SU-419 de 2024. M.P. José Fernando Reyes Cuartas. p. 100.',
+            'Corte Constitucional. (2024). Sentencia SU-419 de 2024. M.P. José Fernando Reyes Cuartas. p. 112.'
+        ]
+    },
+    zarwawiko: {
+        name: 'Zarwawiko Torres Torres',
+        grupo: 'Autoridad Indígena Designada',
+        posicion: 'Busca reconocimiento estatal de su legitimidad como cabildo gobernador transitorio',
+        intereses: [
+            'Reconocimiento oficial de su designación transitoria',
+            'Ejercicio efectivo de la representación legal del resguardo',
+            'Atención de necesidades urgentes de la comunidad',
+            'Estabilidad en la representación legal'
+        ],
+        necesidades: [
+            'Registro oficial en plataformas del Ministerio del Interior',
+            'Legitimidad tanto espiritual como administrativa',
+            'Recursos para atender asuntos urgentes (salud, educación, agua)',
+            'Respaldo comunitario unificado'
+        ],
+        problemas: [
+            'Negativa del Ministerio a registrar decisión de Simonorwa',
+            'Cuestionamiento de legitimidad por sectores políticos',
+            'División comunitaria sobre su representación',
+            'Limitaciones para ejercer funciones sin reconocimiento oficial'
+        ],
+        poder: 'Medio',
+        nivelPoder: 60,
+        fuentes_poder: [
+            'Respaldo de los Mamos como autoridades espirituales',
+            'Reconocimiento transitorio en asamblea de Simonorwa',
+            'Posición de cabildo gobernador desde 2020',
+            'Acceso a representación legal del resguardo'
+        ],
+        disposicion: 'Alta',
+        disposicion_detalle: 'Acepta designación transitoria y busca soluciones que integren a sectores no asistentes',
+        citas: [
+            'El Pilón. (2025, enero 10). Mamos ratifican a Zarwawiko Torres en asamblea de Simonorwa. Radio Guatapurí.',
+            'Corte Constitucional. (2024). Sentencia SU-419 de 2024. M.P. José Fernando Reyes Cuartas. p. 87.'
+        ]
+    },
+    mininterior: {
+        name: 'Ministerio del Interior',
+        grupo: 'Entidad Gubernamental',
+        posicion: 'Resistencia a reconocer decisiones autónomas alegando persistencia de conflicto interno',
+        intereses: [
+            'Mantener control administrativo sobre registro de autoridades',
+            'Evitar responsabilidades legales por decisiones controvertidas',
+            'Estabilidad institucional en relaciones con pueblos indígenas',
+            'Cumplimiento formal de procedimientos burocráticos'
+        ],
+        necesidades: [
+            'Claridad jurídica sobre autoridades legítimas',
+            'Procedimientos que minimicen conflictos institucionales',
+            'Respaldo legal para sus decisiones administrativas',
+            'Coherencia con políticas gubernamentales'
+        ],
+        problemas: [
+            'Señalamiento de la Corte por vulnerar autonomía indígena',
+            'Desobediencia a órdenes judiciales de abstención',
+            'Pérdida de legitimidad ante el pueblo Arhuaco',
+            'Presión de entidades de control por incumplimiento'
+        ],
+        poder: 'Alto',
+        nivelPoder: 85,
+        fuentes_poder: [
+            'Control administrativo sobre registro oficial de autoridades',
+            'Capacidad de ejecutar políticas gubernamentales',
+            'Recursos institucionales y técnicos',
+            'Influencia en procesos burocráticos estatales'
+        ],
+        disposicion: 'Baja',
+        disposicion_detalle: 'Se niega a registrar decisión autónoma y mantiene resistencia a órdenes judiciales',
+        citas: [
+            'Corte Constitucional. (2024). Sentencia SU-419 de 2024. M.P. José Fernando Reyes Cuartas. p. 87.',
+            'Corte Constitucional. (2024). Sentencia SU-419 de 2024. M.P. José Fernando Reyes Cuartas. p. 112.'
+        ]
+    },
+    corte: {
+        name: 'Corte Constitucional',
+        grupo: 'Instancia Judicial Suprema',
+        posicion: 'Protección de derechos fundamentales del pueblo Arhuaco y control constitucional',
+        intereses: [
+            'Garantía efectiva de derechos constitucionales',
+            'Protección de la diversidad étnica y cultural',
+            'Cumplimiento de sus decisiones judiciales',
+            'Fortalecimiento del Estado de derecho'
+        ],
+        necesidades: [
+            'Cumplimiento efectivo de la Sentencia SU419/2024',
+            'Respeto institucional a sus decisiones',
+            'Información sobre implementación del remedio escalonado',
+            'Cooperación de entidades estatales'
+        ],
+        problemas: [
+            'Resistencia del Ministerio del Interior a cumplir órdenes',
+            'Complejidad en la implementación del remedio escalonado',
+            'Necesidad de seguimiento constante del caso',
+            'Tensiones entre autonomía indígena e institucionalidad estatal'
+        ],
+        poder: 'Muy Alto',
+        nivelPoder: 95,
+        fuentes_poder: [
+            'Máxima autoridad constitucional del país',
+            'Facultad de control constitucional vinculante',
+            'Capacidad de ordenar medidas de cumplimiento',
+            'Legitimidad jurisprudencial y constitucional'
+        ],
+        disposicion: 'Alta',
+        disposicion_detalle: 'Diseña remedio escalonado y ordena medidas específicas para resolver el conflicto',
+        citas: [
+            'Corte Constitucional. (2024). Sentencia SU-419 de 2024. M.P. José Fernando Reyes Cuartas.',
+            'Corte Constitucional. (2024). Sentencia SU-419 de 2024. M.P. José Fernando Reyes Cuartas. pp. 112-113.'
+        ]
+    },
+    lideres_pugna: {
+        name: 'Líderes Políticos en Pugna',
+        grupo: 'Sectores Políticos Indígenas',
+        posicion: 'Cuestionamiento de la legitimidad de las decisiones de los Mamos',
+        intereses: [
+            'Obtención de representación política alternativa',
+            'Cuestionamiento del liderazgo tradicional',
+            'Influencia en decisiones comunitarias',
+            'Reconocimiento de sus planteamientos políticos'
+        ],
+        necesidades: [
+            'Espacios de participación en decisiones comunitarias',
+            'Reconocimiento de sus perspectivas políticas',
+            'Canales institucionales para expresar desacuerdos',
+            'Inclusión en procesos de toma de decisiones'
+        ],
+        problemas: [
+            'Identificación como causantes del conflicto político',
+            'Exclusión de procesos espirituales tradicionales',
+            'Falta de legitimidad tradicional y constitucional',
+            'Fragmentación de la unidad comunitaria'
+        ],
+        poder: 'Medio',
+        nivelPoder: 45,
+        fuentes_poder: [
+            'Capacidad de movilización de sectores comunitarios',
+            'Influencia en opinión pública interna',
+            'Capacidad de generar controversia política',
+            'Articulación con sectores disidentes'
+        ],
+        disposicion: 'Baja',
+        disposicion_detalle: 'Mantienen oposición a decisiones de los Mamos y generan división interna',
+        citas: [
+            'Corte Constitucional. (2024). Sentencia SU-419 de 2024. M.P. José Fernando Reyes Cuartas. p. 87.',
+            'Molina Roys, Gutierrez Jose y Ferrer Ana (2025). Informe sobre proceso autónomo en Simonorwa.'
+        ]
+    },
+    defensoria: {
+        name: 'Defensoría del Pueblo',
+        grupo: 'Entidad de Control y Protección',
+        posicion: 'Acompañamiento del proceso autónomo y protección de derechos indígenas',
+        intereses: [
+            'Protección efectiva de derechos humanos',
+            'Cumplimiento de órdenes constitucionales',
+            'Fortalecimiento de procesos autónomos indígenas',
+            'Verificación del respeto a la autonomía'
+        ],
+        necesidades: [
+            'Cooperación institucional para acompañamiento',
+            'Información oportuna sobre procesos comunitarios',
+            'Recursos para seguimiento efectivo',
+            'Coordinación con otras entidades de control'
+        ],
+        problemas: [
+            'Resistencia institucional al cumplimiento de órdenes',
+            'Complejidad del conflicto y múltiples actores',
+            'Limitaciones para hacer cumplir recomendaciones',
+            'Necesidad de equilibrar diferentes intereses'
+        ],
+        poder: 'Medio',
+        nivelPoder: 70,
+        fuentes_poder: [
+            'Mandato constitucional de protección de derechos',
+            'Capacidad de acompañamiento institucional',
+            'Legitimidad en defensa de derechos humanos',
+            'Funciones de verificación y seguimiento'
+        ],
+        disposicion: 'Alta',
+        disposicion_detalle: 'Acompaña activamente procesos autónomos y verifica cumplimiento de derechos',
+        citas: [
+            'Corte Constitucional. (2024). Sentencia SU-419 de 2024. M.P. José Fernando Reyes Cuartas. pp. 112-113.',
+            'Molina Roys, Gutierrez Jose y Ferrer Ana (2025). Acompañamiento al proceso autónomo de Simonorwa.'
+        ]
+    },
+    procuraduria: {
+        name: 'Procuraduría General de la Nación',
+        grupo: 'Entidad de Control Disciplinario',
+        posicion: 'Vigilancia del cumplimiento de órdenes constitucionales y respeto a autonomía indígena',
+        intereses: [
+            'Cumplimiento disciplinario de funcionarios públicos',
+            'Respeto a órdenes judiciales',
+            'Protección del ordenamiento constitucional',
+            'Control sobre actuaciones administrativas'
+        ],
+        necesidades: [
+            'Información sobre actuaciones de funcionarios',
+            'Capacidad sancionatoria efectiva',
+            'Coordinación con otras entidades de control',
+            'Claridad normativa para actuaciones'
+        ],
+        problemas: [
+            'Resistencia de funcionarios a cumplir órdenes',
+            'Complejidad jurídica del caso',
+            'Necesidad de equilibrar control y autonomía',
+            'Limitaciones en seguimiento directo'
+        ],
+        poder: 'Medio-Alto',
+        nivelPoder: 75,
+        fuentes_poder: [
+            'Facultades disciplinarias sobre funcionarios públicos',
+            'Capacidad de investigación y sanción',
+            'Ministerio público con funciones constitucionales',
+            'Autoridad para vigilar cumplimiento normativo'
+        ],
+        disposicion: 'Media',
+        disposicion_detalle: 'Cumple funciones de control pero sin protagonismo directo en el proceso',
+        citas: [
+            'Corte Constitucional. (2024). Sentencia SU-419 de 2024. M.P. José Fernando Reyes Cuartas. pp. 112-113.',
+            'Procuraduría General de la Nación. (2024). Funciones en protección de autonomía indígena.'
+        ]
+    },
+    comunidad: {
+        name: 'Comunidad Arhuaca en General',
+        grupo: 'Pueblo Indígena Beneficiario',
+        posicion: 'Búsqueda de unidad comunitaria y fortalecimiento del autogobierno',
+        intereses: [
+            'Unidad y cohesión comunitaria',
+            'Ejercicio efectivo de derechos territoriales',
+            'Acceso a servicios básicos (salud, educación, agua)',
+            'Fortalecimiento de la identidad cultural'
+        ],
+        necesidades: [
+            'Representación legítima y unificada',
+            'Superación de divisiones internas',
+            'Atención de necesidades básicas urgentes',
+            'Protección de territorio y cultura ancestral'
+        ],
+        problemas: [
+            'División interna por conflicto de legitimidad',
+            'Afectación de servicios por crisis institucional',
+            'Debilitamiento de cohesión social',
+            'Interferencia externa en procesos tradicionales'
+        ],
+        poder: 'Medio',
+        nivelPoder: 65,
+        fuentes_poder: [
+            'Titularidad de derechos colectivos constitucionales',
+            'Legitimidad como beneficiaria de protección jurídica',
+            'Capacidad de movilización comunitaria',
+            'Respaldo constitucional a sus derechos'
+        ],
+        disposicion: 'Alta',
+        disposicion_detalle: 'Busca superar divisiones y fortalecer autogobierno bajo autoridad de los Mamos',
+        citas: [
+            'Corte Constitucional. (2024). Sentencia SU-419 de 2024. M.P. José Fernando Reyes Cuartas. p. 87.',
+            'Corte Constitucional. (2024). Sentencia SU-419 de 2024. M.P. José Fernando Reyes Cuartas. pp. 85-87.'
+        ]
+    }
+};
+
+function createActorAnalysisData() {
+    // Los datos ya están definidos en actorAnalysisData
+}
+
+function createActorAnalysisSelector() {
+    const selector = document.getElementById('actorAnalysisSelector');
+    
+    Object.entries(actorAnalysisData).forEach(([actorId, data]) => {
+        const div = document.createElement('div');
+        div.className = 'actor-card p-4 rounded-lg border-2 mb-3';
+        div.innerHTML = `
+            <h4 class="font-semibold text-gray-800 text-sm">${data.name}</h4>
+            <p class="text-xs text-gray-600 mt-1">${data.grupo}</p>
+            <div class="mt-2 flex items-center justify-between">
+                <span class="text-xs text-gray-500">Poder: ${data.poder}</span>
+                <span class="disposition-badge disposition-${data.disposicion.toLowerCase()}">${data.disposicion}</span>
+            </div>
+        `;
+        
+        div.addEventListener('click', () => {
+            // Remove previous selections
+            document.querySelectorAll('.actor-card').forEach(card => 
+                card.classList.remove('selected'));
+            
+            // Select current
+            div.classList.add('selected');
+            
+            // Show detailed analysis
+            showDetailedActorAnalysis(actorId);
+        });
+        
+        selector.appendChild(div);
+    });
+}
+
+function createActorMatrix() {
+    const tbody = document.getElementById('actorMatrixBody');
+    
+    Object.entries(actorAnalysisData).forEach(([actorId, data]) => {
+        const row = document.createElement('tr');
+        row.className = 'hover:bg-gray-50 cursor-pointer';
+        row.innerHTML = `
+            <td class="border border-gray-300 px-4 py-3">
+                <div class="font-medium text-gray-800">${data.name}</div>
+                <div class="text-xs text-gray-500">${data.grupo}</div>
+            </td>
+            <td class="border border-gray-300 px-4 py-3 text-sm">${data.posicion.substring(0, 60)}...</td>
+            <td class="border border-gray-300 px-4 py-3 text-sm">${data.intereses[0].substring(0, 50)}...</td>
+            <td class="border border-gray-300 px-4 py-3">
+                <div class="flex items-center">
+                    <span class="text-sm font-medium mr-2">${data.poder}</span>
+                    <div class="power-meter flex-1">
+                        <div class="power-fill power-${data.poder.toLowerCase().replace(' ', '-').replace('muy ', '')}" 
+                             style="width: ${data.nivelPoder}%"></div>
+                    </div>
+                </div>
+            </td>
+            <td class="border border-gray-300 px-4 py-3 text-center">
+                <span class="disposition-badge disposition-${data.disposicion.toLowerCase()}">${data.disposicion}</span>
+            </td>
+        `;
+        
+        row.addEventListener('click', () => {
+            // Highlight row
+            document.querySelectorAll('#actorMatrixBody tr').forEach(r => 
+                r.classList.remove('bg-blue-50'));
+            row.classList.add('bg-blue-50');
+            
+            // Show detailed analysis
+            showDetailedActorAnalysis(actorId);
+            
+            // Update selector
+            document.querySelectorAll('.actor-card').forEach(card => 
+                card.classList.remove('selected'));
+            document.querySelector(`#actorAnalysisSelector .actor-card:nth-child(${Object.keys(actorAnalysisData).indexOf(actorId) + 1})`).classList.add('selected');
+        });
+        
+        tbody.appendChild(row);
+    });
+}
+
+function showDetailedActorAnalysis(actorId) {
+    const data = actorAnalysisData[actorId];
+    const panel = document.getElementById('detailedActorAnalysis');
+    const content = document.getElementById('detailedActorContent');
+    
+    content.innerHTML = `
+        <div class="mb-6">
+            <h2 class="text-3xl font-bold text-gray-800 mb-2">${data.name}</h2>
+            <p class="text-lg text-gray-600">${data.grupo}</p>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Posiciones -->
+            <div class="dimension-card">
+                <div class="dimension-title">
+                    🎯 Posición en el Conflicto
+                </div>
+                <p class="text-gray-700">${data.posicion}</p>
+            </div>
+            
+            <!-- Intereses -->
+            <div class="dimension-card">
+                <div class="dimension-title">
+                    💎 Intereses Principales
+                </div>
+                <ul class="list-disc list-inside text-gray-700 space-y-1">
+                    ${data.intereses.map(interes => `<li class="text-sm">${interes}</li>`).join('')}
+                </ul>
+            </div>
+            
+            <!-- Necesidades -->
+            <div class="dimension-card">
+                <div class="dimension-title">
+                    ⚡ Necesidades Fundamentales
+                </div>
+                <ul class="list-disc list-inside text-gray-700 space-y-1">
+                    ${data.necesidades.map(necesidad => `<li class="text-sm">${necesidad}</li>`).join('')}
+                </ul>
+            </div>
+            
+            <!-- Problemas -->
+            <div class="dimension-card">
+                <div class="dimension-title">
+                    ⚠️ Problemas Identificados
+                </div>
+                <ul class="list-disc list-inside text-gray-700 space-y-1">
+                    ${data.problemas.map(problema => `<li class="text-sm">${problema}</li>`).join('')}
+                </ul>
+            </div>
+        </div>
+        
+        <!-- Poder e Influencia -->
+        <div class="dimension-card mt-6">
+            <div class="dimension-title">
+                💪 Poder e Influencia
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="font-medium">Nivel de Poder: ${data.poder}</span>
+                        <span class="text-sm text-gray-600">${data.nivelPoder}%</span>
+                    </div>
+                    <div class="power-meter">
+                        <div class="power-fill power-${data.poder.toLowerCase().replace(' ', '-').replace('muy ', '')}" 
+                             style="width: ${data.nivelPoder}%"></div>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="font-medium mb-2">Fuentes de Poder:</h4>
+                    <ul class="list-disc list-inside text-sm text-gray-700 space-y-1">
+                        ${data.fuentes_poder.map(fuente => `<li>${fuente}</li>`).join('')}
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Disposición para Negociar -->
+        <div class="dimension-card">
+            <div class="dimension-title">
+                🤝 Disposición para Negociar
+            </div>
+            <div class="flex items-center justify-between mb-3">
+                <span class="disposition-badge disposition-${data.disposicion.toLowerCase()}">${data.disposicion}</span>
+                <span class="text-sm text-gray-600">Disposición hacia el diálogo y la negociación</span>
+            </div>
+            <p class="text-gray-700 text-sm">${data.disposicion_detalle}</p>
+        </div>
+        
+        <!-- Referencias y Citas -->
+        <div class="dimension-card">
+            <div class="dimension-title">
+                📚 Referencias Normativas (APA)
+            </div>
+            <div class="space-y-2">
+                ${data.citas.map(cita => `
+                    <div class="citation">
+                        ${cita}
+                    </div>
+                `).join('')}
+            </div>
+        </div>
+        
+        <!-- Análisis ACCP -->
+        <div class="summary-section">
+            <h3 class="text-lg font-semibold text-gray-800 mb-3">🔍 Síntesis ACCP para ${data.name}</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                <div>
+                    <h4 class="font-medium text-gray-800 mb-2">Fortalezas</h4>
+                    <p class="text-gray-700">${getActorStrengths(actorId)}</p>
+                </div>
+                <div>
+                    <h4 class="font-medium text-gray-800 mb-2">Debilidades</h4>
+                    <p class="text-gray-700">${getActorWeaknesses(actorId)}</p>
+                </div>
+                <div>
+                    <h4 class="font-medium text-gray-800 mb-2">Rol en la Solución</h4>
+                    <p class="text-gray-700">${getActorRole(actorId)}</p>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    panel.classList.remove('hidden');
+    panel.scrollIntoView({ behavior: 'smooth' });
+}
+
+function createComparativeAnalysis() {
+    // Análisis de poder
+    const powerAnalysis = document.getElementById('powerAnalysis');
+    const sortedByPower = Object.entries(actorAnalysisData)
+        .sort(([,a], [,b]) => b.nivelPoder - a.nivelPoder)
+        .slice(0, 4);
+    
+    sortedByPower.forEach(([actorId, data]) => {
+        const div = document.createElement('div');
+        div.className = 'comparative-item';
+        div.innerHTML = `
+            <span class="font-medium text-sm">${data.name}</span>
+            <div class="flex items-center">
+                <span class="text-xs text-gray-600 mr-2">${data.nivelPoder}%</span>
+                <div class="w-16 power-meter">
+                    <div class="power-fill power-${data.poder.toLowerCase().replace(' ', '-').replace('muy ', '')}" 
+                         style="width: ${data.nivelPoder}%"></div>
+                </div>
+            </div>
+        `;
+        powerAnalysis.appendChild(div);
+    });
+    
+    // Análisis de disposición
+    const negotiationAnalysis = document.getElementById('negotiationAnalysis');
+    const dispositionOrder = { 'Alta': 3, 'Media': 2, 'Baja': 1 };
+    const sortedByDisposition = Object.entries(actorAnalysisData)
+        .sort(([,a], [,b]) => dispositionOrder[b.disposicion] - dispositionOrder[a.disposicion]);
+    
+    sortedByDisposition.forEach(([actorId, data]) => {
+        const div = document.createElement('div');
+        div.className = 'comparative-item';
+        div.innerHTML = `
+            <span class="font-medium text-sm">${data.name}</span>
+            <span class="disposition-badge disposition-${data.disposicion.toLowerCase()}">${data.disposicion}</span>
+        `;
+        negotiationAnalysis.appendChild(div);
+    });
+}
+
+function getActorStrengths(actorId) {
+    const strengths = {
+        'mamos': 'Legitimidad constitucional y tradicional, unidad espiritual, respaldo jurisprudencial',
+        'zarwawiko': 'Respaldo de autoridades espirituales, experiencia en representación, disposición al diálogo',
+        'mininterior': 'Control administrativo, recursos institucionales, capacidad ejecutiva',
+        'corte': 'Máxima autoridad constitucional, legitimidad jurídica, capacidad vinculante',
+        'lideres_pugna': 'Capacidad de movilización, articulación política, representación de sectores disidentes',
+        'defensoria': 'Legitimidad en derechos humanos, capacidad de acompañamiento, reconocimiento social',
+        'procuraduria': 'Facultades disciplinarias, control institucional, autoridad sancionatoria',
+        'comunidad': 'Titularidad de derechos, legitimidad como beneficiaria, capacidad de movilización'
+    };
+    return strengths[actorId] || 'Análisis específico pendiente';
+}
+
+function getActorWeaknesses(actorId) {
+    const weaknesses = {
+        'mamos': 'Dependencia del reconocimiento estatal, limitaciones burocráticas, interferencia política',
+        'zarwawiko': 'Cuestionamiento de legitimidad, falta de reconocimiento oficial, división comunitaria',
+        'mininterior': 'Señalamiento judicial, pérdida de legitimidad, resistencia a órdenes judiciales',
+        'corte': 'Dependencia del cumplimiento voluntario, limitaciones en implementación directa',
+        'lideres_pugna': 'Falta de legitimidad tradicional, fragmentación interna, aislamiento institucional',
+        'defensoria': 'Limitaciones ejecutivas, dependencia de cooperación institucional',
+        'procuraduria': 'Enfoque principalmente disciplinario, limitado protagonismo directo',
+        'comunidad': 'División interna, dependencia de representación unificada, vulnerabilidad institucional'
+    };
+    return weaknesses[actorId] || 'Análisis específico pendiente';
+}
+
+function getActorRole(actorId) {
+    const roles = {
+        'mamos': 'Actor central para solución definitiva, deben ejercer liderazgo espiritual unificador',
+        'zarwawiko': 'Facilitador transitorio, debe generar puentes hacia solución definitiva',
+        'mininterior': 'Debe cumplir órdenes judiciales y reconocer decisiones autónomas',
+        'corte': 'Garante del cumplimiento y seguimiento del remedio escalonado',
+        'lideres_pugna': 'Requieren integración en procesos de diálogo para unidad comunitaria',
+        'defensoria': 'Acompañante y verificador del respeto a derechos y autonomía',
+        'procuraduria': 'Vigilante del cumplimiento disciplinario de funcionarios públicos',
+        'comunidad': 'Beneficiaria final, debe fortalecer unidad bajo autoridad tradicional'
+    };
+    return roles[actorId] || 'Rol específico por definir';
+}
+
+function createRelationshipMatrix() {
+    updateRelationshipMatrix();
+}
+
+function updateRelationshipMatrix() {
+    const selectedActors = getSelectedActors();
+    const matrixContainer = document.getElementById('relationshipMatrix');
+    
+    if (selectedActors.length < 2) {
+        matrixContainer.innerHTML = `
+            <div class="text-center py-8 text-gray-500">
+                <p class="text-lg font-medium">Selecciona al menos 2 actores para ver la matriz de relaciones</p>
+            </div>
+        `;
+        return;
+    }
+
+    let matrixHTML = `
+        <h3 class="text-xl font-semibold mb-4 text-gray-800">Matriz de Relaciones</h3>
+        <div class="overflow-x-auto">
+            <table class="matrix-table">
+                <thead>
+                    <tr>
+                        <th class="bg-gray-100">Actor</th>
+                        ${selectedActors.map(actor => `<th class="bg-gray-100 text-xs">${actor.shortName}</th>`).join('')}
+                    </tr>
+                </thead>
+                <tbody>
+    `;
+
+    selectedActors.forEach(fromActor => {
+        matrixHTML += `<tr><td class="font-medium bg-gray-50">${fromActor.shortName}</td>`;
+        
+        selectedActors.forEach(toActor => {
+            if (fromActor.id === toActor.id) {
+                matrixHTML += `<td class="bg-gray-100">-</td>`;
+            } else {
+                const relationship = findRelationship(fromActor.id, toActor.id);
+                if (relationship) {
+                    matrixHTML += `
+                        <td class="relation-cell ${relationship.type}" 
+                            onclick="showDetailedAnalysis('${fromActor.id}', '${toActor.id}')"
+                            title="${relationship.label}">
+                            ${getRelationSymbol(relationship.type)}
+                        </td>
+                    `;
+                } else {
+                    matrixHTML += `<td class="bg-gray-50 text-gray-400">∅</td>`;
+                }
+            }
+        });
+        
+        matrixHTML += `</tr>`;
+    });
+
+    matrixHTML += `
+                </tbody>
+            </table>
+        </div>
+        <div class="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+            <div class="flex items-center">
+                <span class="w-4 h-4 bg-green-200 rounded mr-2"></span>
+                <span>🤝 Alianza</span>
+            </div>
+            <div class="flex items-center">
+                <span class="w-4 h-4 bg-red-200 rounded mr-2"></span>
+                <span>⚡ Conflicto</span>
+            </div>
+            <div class="flex items-center">
+                <span class="w-4 h-4 bg-blue-200 rounded mr-2"></span>
+                <span>👁️ Supervisión</span>
+            </div>
+            <div class="flex items-center">
+                <span class="w-4 h-4 bg-cyan-200 rounded mr-2"></span>
+                <span>🔄 Colaboración</span>
+            </div>
+        </div>
+    `;
+
+    matrixContainer.innerHTML = matrixHTML;
+}
+
+function getSelectedActors() {
+    const checkboxes = document.querySelectorAll('.actor-checkbox:checked');
+    return Array.from(checkboxes).map(cb => {
+        const actorId = cb.id.replace('actor-', '');
+        return actors.find(a => a.id === actorId);
+    }).filter(Boolean);
+}
+
+function findRelationship(fromId, toId) {
+    return relationships.find(rel => 
+        (rel.from === fromId && rel.to === toId) || 
+        (rel.from === toId && rel.to === fromId)
+    );
+}
+
+function getRelationSymbol(type) {
+    const symbols = {
+        'alianza': '🤝',
+        'conflicto': '⚡',
+        'supervision': '👁️',
+        'colaboracion': '🔄'
+    };
+    return symbols[type] || '●';
+}
+
+function showDetailedAnalysis(actorId1, actorId2) {
+    const relationship = findRelationship(actorId1, actorId2);
+    const actor1 = actors.find(a => a.id === actorId1);
+    const actor2 = actors.find(a => a.id === actorId2);
+    
+    if (!relationship || !actor1 || !actor2) return;
+
+    const detailedPanel = document.getElementById('detailedAnalysis');
+    const detailedContent = document.getElementById('detailedContent');
+    
+    const impactLevel = getImpactLevel(relationship.type);
+    const citations = getRelationshipCitations(actorId1, actorId2);
+    
+    detailedContent.innerHTML = `
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="detailed-section">
+                <h4 class="text-lg font-semibold mb-3 text-gray-800">👥 Actores Involucrados</h4>
+                <div class="space-y-3">
+                    <div class="p-3 bg-white rounded-lg border">
+                        <h5 class="font-medium text-gray-800">${actor1.name}</h5>
+                        <p class="text-sm text-gray-600">${actor1.description}</p>
+                    </div>
+                    <div class="text-center">
+                        <span class="text-2xl">${getRelationSymbol(relationship.type)}</span>
+                        <p class="text-sm font-medium text-gray-700">${relationship.label}</p>
+                    </div>
+                    <div class="p-3 bg-white rounded-lg border">
+                        <h5 class="font-medium text-gray-800">${actor2.name}</h5>
+                        <p class="text-sm text-gray-600">${actor2.description}</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="detailed-section">
+                <h4 class="text-lg font-semibold mb-3 text-gray-800">📊 Características de la Relación</h4>
+                <div class="space-y-3">
+                    <div>
+                        <span class="text-sm font-medium text-gray-600">Tipo:</span>
+                        <span class="ml-2 px-2 py-1 bg-${getTypeColor(relationship.type)}-100 text-${getTypeColor(relationship.type)}-800 rounded text-sm font-medium">
+                            ${relationship.type.charAt(0).toUpperCase() + relationship.type.slice(1)}
+                        </span>
+                    </div>
+                    <div>
+                        <span class="text-sm font-medium text-gray-600">Nivel de Impacto:</span>
+                        <span class="ml-2 impact-indicator impact-${impactLevel}">${impactLevel}</span>
+                    </div>
+                    <div>
+                        <span class="text-sm font-medium text-gray-600">Intensidad:</span>
+                        <div class="ml-2 w-full bg-gray-200 rounded-full h-2">
+                            <div class="bg-${getTypeColor(relationship.type)}-500 h-2 rounded-full" style="width: ${relationship.width * 20}%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="detailed-section">
+            <h4 class="text-lg font-semibold mb-3 text-gray-800">📋 Descripción Detallada</h4>
+            <p class="text-gray-700 leading-relaxed">${relationship.description}</p>
+        </div>
+
+        <div class="detailed-section">
+            <h4 class="text-lg font-semibold mb-3 text-gray-800">🎯 Contexto del Conflicto</h4>
+            <p class="text-gray-700 leading-relaxed">${relationship.context}</p>
+        </div>
+
+        <div class="detailed-section">
+            <h4 class="text-lg font-semibold mb-3 text-gray-800">📈 Impacto en la Dinámica</h4>
+            <p class="text-gray-700 leading-relaxed">${relationship.impact}</p>
+        </div>
+
+        <div class="detailed-section">
+            <h4 class="text-lg font-semibold mb-3 text-gray-800">📚 Referencias Normativas</h4>
+            ${citations}
+        </div>
+
+        <div class="detailed-section">
+            <h4 class="text-lg font-semibold mb-3 text-gray-800">🔍 Análisis ACCP</h4>
+            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <p class="text-blue-800">
+                    <strong>Categorización:</strong> Esta relación se clasifica dentro del análisis ACCP como 
+                    ${relationship.type === 'conflicto' ? 'una línea de tensión crítica que requiere intervención mediadora' : 
+                      relationship.type === 'alianza' ? 'un factor de estabilización que debe ser fortalecido' :
+                      relationship.type === 'supervision' ? 'un mecanismo de control institucional' :
+                      'un elemento de coordinación que facilita la resolución del conflicto'}.
+                </p>
+                <p class="text-blue-800 mt-2">
+                    <strong>Recomendación:</strong> ${getACCPRecommendation(relationship.type)}
+                </p>
+            </div>
+        </div>
+    `;
+    
+    detailedPanel.classList.remove('hidden');
+    detailedPanel.scrollIntoView({ behavior: 'smooth' });
+}
+
+function getImpactLevel(type) {
+    const levels = {
+        'conflicto': 'alto',
+        'alianza': 'medio',
+        'supervision': 'medio',
+        'colaboracion': 'bajo'
+    };
+    return levels[type] || 'medio';
+}
+
+function getTypeColor(type) {
+    const colors = {
+        'alianza': 'green',
+        'conflicto': 'red',
+        'supervision': 'blue',
+        'colaboracion': 'cyan'
+    };
+    return colors[type] || 'gray';
+}
+
+function getRelationshipCitations(actorId1, actorId2) {
+    // Específicas para el caso Arhuaco basadas en el documento
+    const specificCitations = {
+        'corte-mamos': 'Corte Constitucional. (2024). Sentencia SU-419 de 2024. M.P. José Fernando Reyes Cuartas. p. 100.',
+        'corte-mininterior': 'Corte Constitucional. (2024). Sentencia SU-419 de 2024. M.P. José Fernando Reyes Cuartas. p. 112.',
+        'mamos-mininterior': 'Corte Constitucional. (2024). Sentencia SU-419 de 2024. M.P. José Fernando Reyes Cuartas. p. 87.',
+        'mamos-zarwawiko': 'El Pilón. (2025, enero 10). Mamos ratifican a Zarwawiko Torres en asamblea de Simonorwa. Radio Guatapurí.',
+        'corte-comunidad': 'Corte Constitucional. (2024). Sentencia SU-419 de 2024. M.P. José Fernando Reyes Cuartas. pp. 85-87.'
+    };
+
+    const key1 = `${actorId1}-${actorId2}`;
+    const key2 = `${actorId2}-${actorId1}`;
+    
+    const citation = specificCitations[key1] || specificCitations[key2];
+    
+    if (citation) {
+        return `<div class="citation">${citation}</div>`;
+    }
+    
+    return `
+        <div class="citation">
+            Corte Constitucional. (2024). Sentencia SU-419 de 2024. M.P. José Fernando Reyes Cuartas. 
+            Recuperado de https://www.corteconstitucional.gov.co/
+        </div>
+    `;
+}
+
+function getACCPRecommendation(type) {
+    const recommendations = {
+        'conflicto': 'Priorizar espacios de diálogo directo entre las partes con mediación de autoridades legítimas.',
+        'alianza': 'Fortalecer estos vínculos mediante mecanismos institucionales de coordinación permanente.',
+        'supervision': 'Asegurar el cumplimiento efectivo de las órdenes judiciales mediante seguimiento constante.',
+        'colaboracion': 'Institucionalizar estos procesos de colaboración para garantizar su sostenibilidad.'
+    };
+    return recommendations[type] || 'Mantener monitoreo constante de esta relación.';
+}
+
+// Inicialización global
+let isInitialized = false;
+let currentPage = 'conflict-map'; // Variable global para la página actual
+
+// Función para obtener parámetros de la URL
+function getURLParameter(name) {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get(name);
+}
+
+function initializeConflictMap() {
+    if (!isInitialized && currentPage === 'conflict-map') {
+        updateCanvas();
+        createActorsList();
+        isInitialized = true;
+    }
+}
+
+function initializeActorAnalysis() {
+    if (currentPage === 'actor-analysis') {
+        createActorAnalysisSelector();
+        createActorMatrix();
+        createComparativeAnalysis();
+    }
+}
+
+// Ejecutar inicialización cuando cambie la página
+function showPage(pageId, updateURL = true) {
+    currentPage = pageId;
+    
+    // Actualizar URL sin recargar la página
+    if (updateURL) {
+        const newURL = pageId === 'actor-analysis' ? 
+            'mapa_conflicto_arhuaco.html?page=actor-analysis' : 
+            'mapa_conflicto_arhuaco.html';
+        window.history.replaceState({}, '', newURL);
+    }
+    
+    // Actualizar navegación visual
+    document.querySelectorAll('.nav-link').forEach(link => {
+        link.classList.remove('active');
+    });
+    
+    // Mostrar/ocultar contenido de páginas
+    const mapaPage = document.getElementById('mapa-page');
+    const analisisPage = document.getElementById('analisis-page');
+    
+    if (pageId === 'actor-analysis') {
+        // Mostrar análisis de actores
+        if (mapaPage) mapaPage.style.display = 'none';
+        if (analisisPage) {
+            analisisPage.style.display = 'block';
+            analisisPage.classList.remove('hidden');
+        }
+        // Activar navegación
+        const actoresNavLink = document.getElementById('actoresNavLink');
+        if (actoresNavLink) actoresNavLink.classList.add('active');
+        initializeActorAnalysis();
+    } else {
+        // Mostrar mapa de conflicto
+        if (analisisPage) {
+            analisisPage.style.display = 'none';
+            analisisPage.classList.add('hidden');
+        }
+        if (mapaPage) mapaPage.style.display = 'block';
+        // Activar navegación
+        const mapaNavLink = document.getElementById('mapaNavLink');
+        if (mapaNavLink) mapaNavLink.classList.add('active');
+        initializeConflictMap();
+    }
+}
+
+// Asegurar que se llame a showPage cuando se clickeen los botones de navegación
+document.addEventListener('DOMContentLoaded', () => {
+    // Determinar página inicial basada en parámetros URL
+    const pageParam = getURLParameter('page');
+    if (pageParam === 'actor-analysis') {
+        showPage('actor-analysis', false);
+    } else {
+        showPage('conflict-map', false);
+    }
+    
+    // Agregar event listeners SOLO a los enlaces de navegación interna
+    const actoresNavLink = document.getElementById('actoresNavLink');
+    const mapaNavLink = document.getElementById('mapaNavLink');
+    
+    if (actoresNavLink) {
+        actoresNavLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            showPage('actor-analysis', true);
+        });
+    }
+    
+    if (mapaNavLink) {
+        mapaNavLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            showPage('conflict-map', true);
+        });
+    }
+    
+    // NO interferir con los enlaces externos (contexto y causas)
+    // Estos deben navegar normalmente usando href
+});
+</script></body>
+</html>
