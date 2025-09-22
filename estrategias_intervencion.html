@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Estrategias de Intervención - Caso Arhuaco</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .gradient-header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+  .nav-link { background: #f8fafc; color: #334155; border: 1px solid #e2e8f0; box-shadow: 0 1px 2px rgba(0,0,0,0.04); position: relative; }
+  .nav-link:hover { background: #eef2ff; color: #1e293b; border-color: #c7d2fe; }
+  .nav-link.active { background: #3b82f6; color: #fff; border-color: #3b82f6; box-shadow: 0 4px 12px rgba(59,130,246,0.25); }
+  .nav-link::after { content: ''; position: absolute; left: 12px; right: 12px; bottom: 6px; height: 2px; background: #3b82f6; transform: scaleX(0); transform-origin: left; transition: transform .25s ease; }
+  .nav-link:hover::after, .nav-link.active::after { transform: scaleX(1); }
+    .section-card { background: #fff; border-radius: 0.75rem; box-shadow: 0 10px 30px rgba(0,0,0,0.08); }
+    .example-box { background: linear-gradient(135deg,#f0fff4,#dcfce7); border: 1px solid #22c55e; border-radius: 12px; padding: 16px; }
+    .citation { font-style: italic; color: #1e3a8a; background: #eff6ff; border-left: 4px solid #3b82f6; padding: 10px 14px; border-radius: 0 8px 8px 0; }
+    .audio-controls { background: linear-gradient(135deg,#f0f9ff,#e0f2fe); border: 2px solid #0ea5e9; border-radius: 16px; padding: 20px; position: sticky; top: 20px; z-index: 100; box-shadow: 0 8px 25px rgba(14,165,233,.15); }
+    .audio-btn { background: linear-gradient(135deg,#3b82f6,#1d4ed8); color:#fff; border:none; border-radius:12px; padding:12px 18px; font-weight:600; display:flex; align-items:center; gap:8px; }
+    .audio-btn:hover { background: linear-gradient(135deg,#2563eb,#1e40af); transform: translateY(-2px); box-shadow: 0 6px 20px rgba(59,130,246,.3); }
+    .voice-selector { background:#fff; border:2px solid #e2e8f0; border-radius:8px; padding:8px 12px; font-size:14px; color:#374151; }
+    .speed-btn { background:#f1f5f9; border:1px solid #cbd5e1; border-radius:6px; padding:4px 8px; font-size:12px; }
+    .speed-btn.active { background:#3b82f6; color:#fff; border-color:#3b82f6; }
+    .audio-progress { width:100%; height:6px; background:#e2e8f0; border-radius:3px; overflow:hidden; margin:10px 0; }
+    .audio-progress-bar { height:100%; background: linear-gradient(90deg,#3b82f6,#1d4ed8); width:0%; transition: width .1s ease; }
+    .reading-highlight { background-color: #fef3c7 !important; border-radius:4px; padding:2px 4px; }
+  </style>
+</head>
+<body class="bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 min-h-screen">
+  <!-- Header -->
+  <header class="gradient-header shadow-lg">
+    <div class="max-w-7xl mx-auto px-4 py-6">
+      <div class="text-center">
+        <h1 class="text-4xl font-bold mb-2">Estrategias de Intervención</h1>
+        <p class="text-xl opacity-90">Potenciar la paz en el Resguardo Arhuaco</p>
+        <p class="text-sm opacity-75 mt-2">Caso: Sentencia SU-419 de 2024 - Metodología ACCP</p>
+      </div>
+    </div>
+  </header>
+
+  <!-- Navigation -->
+  <nav class="bg-white shadow-md border-b border-gray-200">
+    <div class="max-w-7xl mx-auto px-4">
+      <div class="flex justify-center space-x-6 py-4 flex-wrap">
+        <a href="index.html" class="nav-link px-4 py-2 rounded-lg font-semibold transition-colors">🏠 Inicio</a>
+        <a href="contexto_conflicto_arhuaco.html" class="nav-link px-4 py-2 rounded-lg font-semibold transition-colors">📋 Contexto del Conflicto</a>
+        <a href="mapa_conflicto_arhuaco.html" class="nav-link px-4 py-2 rounded-lg font-semibold transition-colors">🗺️ Mapa Interactivo</a>
+        <a href="mapa_conflicto_arhuaco.html?page=actor-analysis" class="nav-link px-4 py-2 rounded-lg font-semibold transition-colors">📊 Análisis de Actores</a>
+        <a href="analisis_causas_conflicto.html" class="nav-link px-4 py-2 rounded-lg font-semibold transition-colors">🔍 Análisis de Causas</a>
+        <a href="estrategias_intervencion.html" class="nav-link active px-4 py-2 rounded-lg font-semibold transition-colors">🕊️ Estrategias de Intervención</a>
+      </div>
+    </div>
+  </nav>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const file = location.pathname.split('/').pop() || 'index.html';
+      const params = new URLSearchParams(location.search);
+      const links = document.querySelectorAll('nav .nav-link');
+      links.forEach(l => l.classList.remove('active'));
+      const activateByHref = (ending) => {
+        const a = Array.from(links).find(l => (new URL(l.href, location.origin)).pathname.endsWith(ending));
+        if (a) a.classList.add('active');
+      };
+      if (file === '' || file === 'index.html') activateByHref('index.html');
+      else if (file === 'contexto_conflicto_arhuaco.html') activateByHref('contexto_conflicto_arhuaco.html');
+      else if (file === 'mapa_conflicto_arhuaco.html') {
+        const page = params.get('page');
+        const el = page === 'actor-analysis' ? document.getElementById('actoresNavLink') : document.getElementById('mapaNavLink');
+        if (el) el.classList.add('active');
+      } else if (file === 'analisis_causas_conflicto.html') activateByHref('analisis_causas_conflicto.html');
+      else if (file === 'estrategias_intervencion.html') activateByHref('estrategias_intervencion.html');
+    });
+  </script>
+
+  <!-- Audio Controls -->
+  <div class="max-w-7xl mx-auto px-4 mt-6">
+    <div class="audio-controls">
+      <div class="flex flex-wrap items-center justify-between gap-4">
+        <div class="flex items-center gap-4">
+          <button id="playPauseBtn" class="audio-btn">
+            <span id="playIcon">🔊</span>
+            <span id="playText">Reproducir Página</span>
+          </button>
+          <button id="stopBtn" class="audio-btn" disabled>
+            <span>⏹️</span><span>Detener</span>
+          </button>
+        </div>
+        <div class="flex items-center gap-4 flex-wrap">
+          <div class="flex items-center gap-2">
+            <span class="text-sm font-medium text-gray-700">Velocidad:</span>
+            <button class="speed-btn" data-speed="0.9">0.9x</button>
+            <button class="speed-btn active" data-speed="1">1x</button>
+            <button class="speed-btn" data-speed="1.2">1.2x</button>
+          </div>
+          <select id="voiceSelect" class="voice-selector">
+            <option value="">Voz por defecto</option>
+          </select>
+        </div>
+      </div>
+      <div class="audio-progress"><div id="progressBar" class="audio-progress-bar"></div></div>
+      <div class="text-center"><span id="statusText" class="text-sm text-gray-600">Listo para reproducir</span></div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <main class="max-w-7xl mx-auto px-4 py-8" id="mainContent">
+    <section class="section-card p-8 mb-8">
+      <h2 class="text-3xl font-bold text-gray-800 mb-4">🕊️ ESTRATEGIAS DE INTERVENCIÓN PARA POTENCIAR LA PAZ</h2>
+      <p class="text-gray-700 leading-relaxed mb-6">
+        En la Sierra Nevada de Santa Marta, la Corte Constitucional dejó claro que la paz en el pueblo Arhuaco no puede alcanzarse mediante imposiciones estatales, sino a través del respeto y la maximización de la autonomía indígena (SU-419 de 2024).
+      </p>
+      <div class="grid md:grid-cols-2 gap-6">
+        <div class="bg-blue-50 border-l-4 border-blue-400 p-6 rounded-md">
+          <h3 class="text-xl font-semibold text-gray-800 mb-2">1) Abstención de nuevas injerencias del Ministerio del Interior</h3>
+          <p class="text-gray-700 mb-3">El Ministerio debe abstenerse de interferencias y garantizar condiciones materiales para que los Mamos se reúnan de forma autónoma y sin presiones de terceros, en cumplimiento de la SU-419 (pp. 112-113).</p>
+          <p class="citation">“Maximización de la autonomía indígena y acción sin daño” (SU-419, 2024, pp. 112-113).</p>
+        </div>
+        <div class="bg-green-50 border-l-4 border-green-400 p-6 rounded-md">
+          <h3 class="text-xl font-semibold text-gray-800 mb-2">2) Fortalecimiento de Defensoría y Procuraduría</h3>
+          <p class="text-gray-700 mb-3">Reforzar su rol de acompañamiento y verificación para asegurar un proceso de deliberación respetuoso, sin daño, y protector de la autonomía, autogobierno e integridad cultural (pp. 86-87, 112-113).</p>
+          <p class="citation">“Acompañamiento permanente y verificación de garantías” (SU-419, 2024).</p>
+        </div>
+        <div class="bg-yellow-50 border-l-4 border-yellow-400 p-6 rounded-md">
+          <h3 class="text-xl font-semibold text-gray-800 mb-2">3) Reconocimiento del carácter político de la controversia</h3>
+          <p class="text-gray-700 mb-3">El Estado debe reconocer que el conflicto no es espiritual, sino político, preservando el papel de los Mamos como autoridades supremas que interpretan la Ley de Origen y definen la representación legítima (p. 100).</p>
+          <p class="citation">“Decisión corresponde a las autoridades espirituales y políticas propias” (SU-419, 2024, p. 100).</p>
+        </div>
+        <div class="bg-purple-50 border-l-4 border-purple-400 p-6 rounded-md">
+          <h3 class="text-xl font-semibold text-gray-800 mb-2">4) Diálogo intercultural en políticas públicas urgentes</h3>
+          <p class="text-gray-700 mb-3">Estructurar salud, educación y acceso a agua potable en armonía con el derecho propio, para evitar repetición de vulneraciones y consolidar el remedio escalonado (p. 112).</p>
+          <p class="citation">“Remedio progresivo de corto, mediano y largo plazo” (SU-419, 2024, p. 112).</p>
+        </div>
+      </div>
+      <div class="example-box mt-6">
+        <h4 class="font-semibold text-green-800 mb-2">5) Mecanismo de seguimiento participativo</h4>
+        <p class="text-green-700 text-sm leading-relaxed">Crear un mecanismo de monitoreo con participación del pueblo Iku y entidades de control para evaluar cumplimiento, efectividad de medidas y alineación futura del Estado con el principio de maximización de autonomía.</p>
+      </div>
+    </section>
+
+    <section class="section-card p-8 mb-8">
+      <h3 class="text-2xl font-bold text-gray-800 mb-3">🎯 Resultados Esperados</h3>
+      <ul class="list-disc pl-6 text-gray-700 space-y-2">
+        <li>Respeto efectivo a la autonomía y al derecho propio.</li>
+        <li>Ambiente de deliberación sin daño y sin presiones.</li>
+        <li>Reconocimiento estatal de la representación definida por los Mamos.</li>
+        <li>Implementación intercultural de políticas públicas prioritarias.</li>
+        <li>Seguimiento continuo y ajuste progresivo del remedio.</li>
+      </ul>
+    </section>
+
+    <section class="section-card p-8">
+      <h3 class="text-2xl font-bold text-gray-800 mb-3">📌 Nota Metodológica</h3>
+      <p class="text-gray-700 leading-relaxed">Estas estrategias se alinean con el análisis ACCP aplicado al caso Arhuaco y con la arquitectura de remedios de la SU-419, priorizando el protagonismo de las autoridades propias y la acción estatal de soporte, no de dirección.</p>
+    </section>
+  </main>
+
+  <script>
+    // Reutiliza el lector de pantalla del resto del sitio
+    let speechSynthesis = window.speechSynthesis;
+    let currentUtterance = null;
+    let isPlaying = false;
+    let isPaused = false;
+    let textSegments = [];
+    let currentSegmentIndex = 0;
+    let speechRate = 1;
+    let selectedVoice = null;
+
+    const playPauseBtn = document.getElementById('playPauseBtn');
+    const stopBtn = document.getElementById('stopBtn');
+    const playIcon = document.getElementById('playIcon');
+    const playText = document.getElementById('playText');
+    const progressBar = document.getElementById('progressBar');
+    const statusText = document.getElementById('statusText');
+    const voiceSelect = document.getElementById('voiceSelect');
+    const speedButtons = document.querySelectorAll('.speed-btn');
+
+    function initializeVoices() {
+      const voices = speechSynthesis.getVoices();
+      const spanishVoices = voices.filter(v => v.lang.includes('es') || v.name.toLowerCase().includes('spanish'));
+      const list = spanishVoices.length ? spanishVoices : voices.slice(0,5);
+      list.forEach((voice, index) => {
+        const option = document.createElement('option');
+        option.value = index;
+        option.textContent = `${voice.name} (${voice.lang})`;
+        voiceSelect.appendChild(option);
+      });
+      selectedVoice = list[0] || null;
+    }
+    if (speechSynthesis.onvoiceschanged !== undefined) speechSynthesis.onvoiceschanged = initializeVoices; else initializeVoices();
+
+    function createTextSegments() {
+      const main = document.querySelector('main');
+      const els = main.querySelectorAll('p, h1, h2, h3, h4, h5, h6, li');
+      textSegments = [];
+      els.forEach((el, i) => { const t = el.textContent.trim(); if (t) textSegments.push({ text: t, element: el, index: i }); });
+    }
+
+    function updateUI() {
+      if (!playPauseBtn || !playIcon || !playText) return;
+      if (!isPlaying) { playIcon.textContent = '🔊'; playText.textContent = 'Reproducir Página'; return; }
+      if (isPaused) { playIcon.textContent = '▶️'; playText.textContent = 'Reanudar'; } else { playIcon.textContent = '⏸️'; playText.textContent = 'Pausar'; }
+    }
+
+    function updateProgress() {
+      if (!progressBar || !statusText) return;
+      const progress = textSegments.length ? (currentSegmentIndex / textSegments.length) * 100 : 0;
+      progressBar.style.width = `${progress}%`;
+      statusText.textContent = isPlaying ? `Leyendo ${currentSegmentIndex + 1} de ${textSegments.length}` : 'Listo para reproducir';
+    }
+
+    function readCurrentSegment() {
+      if (currentSegmentIndex >= textSegments.length) { stopReading(); return; }
+      const seg = textSegments[currentSegmentIndex];
+      document.querySelectorAll('.reading-highlight').forEach(el => el.classList.remove('reading-highlight'));
+      seg.element.classList.add('reading-highlight');
+      seg.element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      currentUtterance = new SpeechSynthesisUtterance(seg.text);
+      if (selectedVoice) currentUtterance.voice = selectedVoice;
+      currentUtterance.rate = speechRate;
+      currentUtterance.onend = () => { seg.element.classList.remove('reading-highlight'); currentSegmentIndex++; if (isPlaying && !isPaused) setTimeout(readCurrentSegment, 200); updateProgress(); };
+      currentUtterance.onerror = () => { stopReading(); };
+      speechSynthesis.speak(currentUtterance);
+      updateProgress();
+    }
+
+    function startReading() { if (!textSegments.length) createTextSegments(); if (!textSegments.length) return; isPlaying = true; isPaused = false; currentSegmentIndex = 0; updateUI(); readCurrentSegment(); }
+    function pauseReading() { if (isPlaying && !isPaused) { speechSynthesis.pause(); isPaused = true; updateUI(); } }
+    function resumeReading() { if (isPlaying && isPaused) { speechSynthesis.resume(); isPaused = false; updateUI(); } }
+    function stopReading() { speechSynthesis.cancel(); isPlaying = false; isPaused = false; currentSegmentIndex = 0; document.querySelectorAll('.reading-highlight').forEach(el => el.classList.remove('reading-highlight')); updateUI(); updateProgress(); }
+    function togglePlayPause() { if (!isPlaying) startReading(); else if (isPaused) resumeReading(); else pauseReading(); }
+    function changeVoice() { const voices = speechSynthesis.getVoices(); const spanish = voices.filter(v => v.lang.includes('es') || v.name.toLowerCase().includes('spanish')); const list = spanish.length ? spanish : voices; const idx = parseInt(voiceSelect.value,10); selectedVoice = list[idx] || list[0] || null; }
+    function changeSpeed(r) { speechRate = r; speedButtons.forEach(b => { b.classList.remove('active'); if (parseFloat(b.dataset.speed) === r) b.classList.add('active'); }); if (isPlaying && !isPaused) { speechSynthesis.cancel(); setTimeout(readCurrentSegment, 100); } }
+
+    playPauseBtn.addEventListener('click', togglePlayPause);
+    stopBtn.addEventListener('click', stopReading);
+    voiceSelect.addEventListener('change', changeVoice);
+    speedButtons.forEach(b => b.addEventListener('click', e => changeSpeed(parseFloat(e.target.dataset.speed))));
+    window.addEventListener('beforeunload', () => speechSynthesis.cancel());
+    document.addEventListener('visibilitychange', () => { if (document.hidden && isPlaying && !isPaused) pauseReading(); });
+  </script>
+</body>
+</html>
