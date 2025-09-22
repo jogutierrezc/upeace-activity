@@ -123,18 +123,39 @@
 
         /* Estilos para navegación */
         .nav-link {
-            color: #718096;
+            background: #f8fafc;
+            color: #334155;
             text-decoration: none;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+            position: relative;
         }
-
         .nav-link:hover {
-            background: #f7fafc;
-            color: #2d3748;
+            background: #eef2ff;
+            color: #1e293b;
+            border-color: #c7d2fe;
         }
-
         .nav-link.active {
             background: #3b82f6;
-            color: white;
+            color: #fff;
+            border-color: #3b82f6;
+            box-shadow: 0 4px 12px rgba(59,130,246,0.25);
+        }
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            left: 12px;
+            right: 12px;
+            bottom: 6px;
+            height: 2px;
+            background: #3b82f6;
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.25s ease;
+        }
+        .nav-link:hover::after,
+        .nav-link.active::after {
+            transform: scaleX(1);
         }
         
         .gradient-header {
@@ -522,22 +543,38 @@
 <!-- Navigation -->
 <nav class="bg-white shadow-md border-b border-gray-200">
     <div class="max-w-7xl mx-auto px-4">
-        <div class="flex justify-center space-x-8 py-4">
-            <a href="contexto_conflicto_arhuaco.html" class="nav-link px-6 py-2 rounded-lg font-semibold transition-colors hover:bg-gray-200">
-                📋 Contexto del Conflicto
-            </a>
-            <a href="mapa_conflicto_arhuaco.html" class="nav-link px-6 py-2 rounded-lg font-semibold transition-colors hover:bg-gray-200" id="mapaNavLink">
-                🗺️ Mapa Interactivo
-            </a>
-            <a href="mapa_conflicto_arhuaco.html?page=actor-analysis" class="nav-link px-6 py-2 rounded-lg font-semibold transition-colors hover:bg-gray-200" id="actoresNavLink">
-                📊 Análisis de Actores
-            </a>
-            <a href="analisis_causas_conflicto.html" class="nav-link px-6 py-2 rounded-lg font-semibold transition-colors hover:bg-gray-200">
-                🔍 Análisis de Causas
+        <div class="flex justify-center space-x-6 py-4 flex-wrap">
+            <a href="index.html" class="nav-link px-4 py-2 rounded-lg font-semibold transition-colors">🏠 Inicio</a>
+            <a href="contexto_conflicto_arhuaco.html" class="nav-link px-4 py-2 rounded-lg font-semibold transition-colors">📋 Contexto del Conflicto</a>
+            <a href="mapa_conflicto_arhuaco.html" class="nav-link px-4 py-2 rounded-lg font-semibold transition-colors" id="mapaNavLink">🗺️ Mapa Interactivo</a>
+            <a href="mapa_conflicto_arhuaco.html?page=actor-analysis" class="nav-link px-4 py-2 rounded-lg font-semibold transition-colors" id="actoresNavLink">📊 Análisis de Actores</a>
+            <a href="analisis_causas_conflicto.html" class="nav-link px-4 py-2 rounded-lg font-semibold transition-colors">🔍 Análisis de Causas</a>
+            <a href="estrategias_intervencion.html" class="nav-link px-4 py-2 rounded-lg font-semibold transition-colors">
+                🕊️ Estrategias de Intervención
             </a>
         </div>
     </div>
 </nav>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const file = location.pathname.split('/').pop() || 'index.html';
+    const params = new URLSearchParams(location.search);
+    const links = document.querySelectorAll('nav .nav-link');
+    links.forEach(l => l.classList.remove('active'));
+    const activateByHref = (ending) => {
+        const a = Array.from(links).find(l => (new URL(l.href, location.origin)).pathname.endsWith(ending));
+        if (a) a.classList.add('active');
+    };
+    if (file === '' || file === 'index.html') activateByHref('index.html');
+    else if (file === 'contexto_conflicto_arhuaco.html') activateByHref('contexto_conflicto_arhuaco.html');
+    else if (file === 'mapa_conflicto_arhuaco.html') {
+        const page = params.get('page');
+        const el = page === 'actor-analysis' ? document.getElementById('actoresNavLink') : document.getElementById('mapaNavLink');
+        if (el) el.classList.add('active');
+    } else if (file === 'analisis_causas_conflicto.html') activateByHref('analisis_causas_conflicto.html');
+    else if (file === 'estrategias_intervencion.html') activateByHref('estrategias_intervencion.html');
+});
+</script>
 
 <div class="max-w-7xl mx-auto px-4 py-8">
     <!-- Página del Mapa de Conflicto -->
@@ -715,6 +752,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const relationshipPanel = document.getElementById('relationshipPanel');
     const relationshipContent = document.getElementById('relationshipContent');
     const closeRelPanel = document.getElementById('closeRelPanel');
+    // Persistencia de selección de actor
+    let lastSelectedActorId = null;
 
     // Definición de actores basada en el análisis ACCP
     const actors = [
@@ -1238,6 +1277,7 @@ document.addEventListener('DOMContentLoaded', () => {
             `;
             div.addEventListener('click', () => {
                 selectedActor = selectedActor === actor.id ? null : actor.id;
+                lastSelectedActorId = selectedActor || lastSelectedActorId;
                 updateActorsList();
                 draw();
             });
@@ -1260,6 +1300,12 @@ document.addEventListener('DOMContentLoaded', () => {
     resizeCanvas();
     updateActorsList();
     initializeRelationshipAnalysis();
+    // Restaurar selección si aplica (al cargar mapa)
+    if (lastSelectedActorId) {
+        selectedActor = lastSelectedActorId;
+        updateActorsList();
+        draw();
+    }
 });
 
 // Funcionalidad de análisis de relaciones
@@ -1576,6 +1622,9 @@ function createActorAnalysisData() {
 
 function createActorAnalysisSelector() {
     const selector = document.getElementById('actorAnalysisSelector');
+    if (!selector) return;
+    // Evitar duplicados al reconstruir
+    selector.innerHTML = '';
     
     Object.entries(actorAnalysisData).forEach(([actorId, data]) => {
         const div = document.createElement('div');
@@ -1607,6 +1656,9 @@ function createActorAnalysisSelector() {
 
 function createActorMatrix() {
     const tbody = document.getElementById('actorMatrixBody');
+    if (!tbody) return;
+    // Evitar duplicados al reconstruir
+    tbody.innerHTML = '';
     
     Object.entries(actorAnalysisData).forEach(([actorId, data]) => {
         const row = document.createElement('tr');
@@ -1780,6 +1832,7 @@ function showDetailedActorAnalysis(actorId) {
 function createComparativeAnalysis() {
     // Análisis de poder
     const powerAnalysis = document.getElementById('powerAnalysis');
+    if (powerAnalysis) powerAnalysis.innerHTML = '';
     const sortedByPower = Object.entries(actorAnalysisData)
         .sort(([,a], [,b]) => b.nivelPoder - a.nivelPoder)
         .slice(0, 4);
@@ -1802,6 +1855,7 @@ function createComparativeAnalysis() {
     
     // Análisis de disposición
     const negotiationAnalysis = document.getElementById('negotiationAnalysis');
+    if (negotiationAnalysis) negotiationAnalysis.innerHTML = '';
     const dispositionOrder = { 'Alta': 3, 'Media': 2, 'Baja': 1 };
     const sortedByDisposition = Object.entries(actorAnalysisData)
         .sort(([,a], [,b]) => dispositionOrder[b.disposicion] - dispositionOrder[a.disposicion]);
@@ -2143,6 +2197,21 @@ function initializeActorAnalysis() {
         createActorAnalysisSelector();
         createActorMatrix();
         createComparativeAnalysis();
+        // Restaurar selección de actor si existe
+        if (typeof lastSelectedActorId !== 'undefined' && lastSelectedActorId) {
+            // Resaltar fila de matriz
+            const actorIds = Object.keys(actorAnalysisData);
+            const index = actorIds.indexOf(lastSelectedActorId);
+            if (index >= 0) {
+                const rows = document.querySelectorAll('#actorMatrixBody tr');
+                if (rows[index]) rows[index].classList.add('bg-blue-50');
+                // Seleccionar tarjeta del selector
+                const cards = document.querySelectorAll('#actorAnalysisSelector .actor-card');
+                if (cards[index]) cards[index].classList.add('selected');
+                // Mostrar detalle
+                showDetailedActorAnalysis(lastSelectedActorId);
+            }
+        }
     }
 }
 
