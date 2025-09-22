@@ -161,20 +161,40 @@
         }
         
         .nav-link {
-            background: #f1f5f9;
-            color: #475569;
+            background: #f8fafc;
+            color: #334155;
             text-decoration: none;
             display: inline-block;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+            position: relative;
         }
-        
         .nav-link:hover {
-            background: #e2e8f0;
+            background: #eef2ff;
             color: #1e293b;
+            border-color: #c7d2fe;
         }
-        
         .nav-link.active {
             background: #3b82f6;
-            color: white;
+            color: #fff;
+            border-color: #3b82f6;
+            box-shadow: 0 4px 12px rgba(59,130,246,0.25);
+        }
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            left: 12px;
+            right: 12px;
+            bottom: 6px;
+            height: 2px;
+            background: #3b82f6;
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.25s ease;
+        }
+        .nav-link:hover::after,
+        .nav-link.active::after {
+            transform: scaleX(1);
         }
     </style>
 </head>
@@ -193,22 +213,36 @@
     <!-- Navigation -->
     <nav class="bg-white shadow-md border-b border-gray-200">
         <div class="max-w-7xl mx-auto px-4">
-            <div class="flex justify-center space-x-8 py-4">
-                <a href="#" class="nav-link active px-6 py-2 rounded-lg font-semibold transition-colors">
-                    📋 Contexto del Conflicto
-                </a>
-                <a href="mapa_conflicto_arhuaco.html" class="nav-link px-6 py-2 rounded-lg font-semibold transition-colors hover:bg-gray-200">
-                    🗺️ Mapa Interactivo
-                </a>
-                <a href="mapa_conflicto_arhuaco.html?page=actor-analysis" class="nav-link px-6 py-2 rounded-lg font-semibold transition-colors hover:bg-gray-200">
-                    📊 Análisis de Actores
-                </a>
-                <a href="analisis_causas_conflicto.html" class="nav-link px-6 py-2 rounded-lg font-semibold transition-colors hover:bg-gray-200">
-                    🔍 Análisis de Causas
-                </a>
+            <div class="flex justify-center space-x-6 py-4 flex-wrap">
+                <a href="index.html" class="nav-link px-4 py-2 rounded-lg font-semibold transition-colors">🏠 Inicio</a>
+                <a href="contexto_conflicto_arhuaco.html" class="nav-link active px-4 py-2 rounded-lg font-semibold transition-colors">📋 Contexto del Conflicto</a>
+                <a href="mapa_conflicto_arhuaco.html" class="nav-link px-4 py-2 rounded-lg font-semibold transition-colors">🗺️ Mapa Interactivo</a>
+                <a href="mapa_conflicto_arhuaco.html?page=actor-analysis" class="nav-link px-4 py-2 rounded-lg font-semibold transition-colors">📊 Análisis de Actores</a>
+                <a href="analisis_causas_conflicto.html" class="nav-link px-4 py-2 rounded-lg font-semibold transition-colors">🔍 Análisis de Causas</a>
+                <a href="estrategias_intervencion.html" class="nav-link px-4 py-2 rounded-lg font-semibold transition-colors">🕊️ Estrategias de Intervención</a>
             </div>
         </div>
     </nav>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const file = location.pathname.split('/').pop() || 'index.html';
+            const params = new URLSearchParams(location.search);
+            const links = document.querySelectorAll('nav .nav-link');
+            links.forEach(l => l.classList.remove('active'));
+            const activateByHref = (ending) => {
+                const a = Array.from(links).find(l => (new URL(l.href, location.origin)).pathname.endsWith(ending));
+                if (a) a.classList.add('active');
+            };
+            if (file === '' || file === 'index.html') activateByHref('index.html');
+            else if (file === 'contexto_conflicto_arhuaco.html') activateByHref('contexto_conflicto_arhuaco.html');
+            else if (file === 'mapa_conflicto_arhuaco.html') {
+                const page = params.get('page');
+                const el = page === 'actor-analysis' ? document.getElementById('actoresNavLink') : document.getElementById('mapaNavLink');
+                if (el) el.classList.add('active');
+            } else if (file === 'analisis_causas_conflicto.html') activateByHref('analisis_causas_conflicto.html');
+            else if (file === 'estrategias_intervencion.html') activateByHref('estrategias_intervencion.html');
+        });
+    </script>
 
     <!-- Main Content -->
     <main class="max-w-7xl mx-auto px-4 py-8">
