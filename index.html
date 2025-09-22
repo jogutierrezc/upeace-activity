@@ -55,6 +55,41 @@
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.3);
         }
+        .nav-link {
+            background: #f8fafc;
+            color: #334155;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+            position: relative;
+            overflow: visible;
+        }
+        .nav-link:hover {
+            background: #eef2ff;
+            color: #1e293b;
+            border-color: #c7d2fe;
+        }
+        .nav-link.active {
+            background: #3b82f6;
+            color: #fff;
+            border-color: #3b82f6;
+            box-shadow: 0 4px 12px rgba(59,130,246,0.25);
+        }
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            left: 12px;
+            right: 12px;
+            bottom: 6px;
+            height: 2px;
+            background: #3b82f6;
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.25s ease;
+        }
+        .nav-link:hover::after,
+        .nav-link.active::after {
+            transform: scaleX(1);
+        }
     </style>
 </head>
 <body class="font-sans">
@@ -72,6 +107,19 @@
             </p>
         </div>
     </header>
+    <!-- Navigation -->
+    <nav class="bg-white/90 backdrop-blur shadow-md border-b border-white/30 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="flex justify-center space-x-4 md:space-x-6 py-3 flex-wrap">
+                <a href="index.html" class="nav-link px-4 py-2 rounded-lg font-semibold transition-colors">🏠 Inicio</a>
+                <a href="contexto_conflicto_arhuaco.html" class="nav-link px-4 py-2 rounded-lg font-semibold transition-colors">📋 Contexto del Conflicto</a>
+                <a href="mapa_conflicto_arhuaco.html" class="nav-link px-4 py-2 rounded-lg font-semibold transition-colors">🗺️ Mapa Interactivo</a>
+                <a href="mapa_conflicto_arhuaco.html?page=actor-analysis" class="nav-link px-4 py-2 rounded-lg font-semibold transition-colors">📊 Análisis de Actores</a>
+                <a href="analisis_causas_conflicto.html" class="nav-link px-4 py-2 rounded-lg font-semibold transition-colors">🔍 Análisis de Causas</a>
+                <a href="estrategias_intervencion.html" class="nav-link px-4 py-2 rounded-lg font-semibold transition-colors">🕊️ Estrategias de Intervención</a>
+            </div>
+        </div>
+    </nav>
 
     <!-- Sección ¿Qué es ACCP? -->
     <section class="py-16 px-4">
@@ -124,51 +172,7 @@
         </div>
     </section>
 
-    <!-- Sección del Equipo -->
-    <section class="py-16 px-4">
-        <div class="max-w-6xl mx-auto">
-            <div class="text-center mb-12">
-                <h2 class="text-4xl font-bold text-white mb-4">Equipo de Investigación</h2>
-                <p class="text-xl text-blue-200">Maestría en Análisis y Resolución de Conflictos</p>
-                <div class="w-24 h-1 bg-white mx-auto mt-4"></div>
-            </div>
-            
-            <div class="grid md:grid-cols-3 gap-8">
-                <div class="team-card rounded-3xl p-8 text-center text-white card-hover">
-                    <div class="w-24 h-24 mx-auto mb-6 bg-gradient-to-br from-pink-400 to-purple-600 rounded-full flex items-center justify-center text-3xl font-bold">
-                        EM
-                    </div>
-                    <h3 class="text-2xl font-bold mb-2">Ema Yuselsy Molina Roys</h3>
-                    <p class="text-blue-200 mb-4">Investigadora Principal</p>
-                    <p class="text-sm text-blue-100 leading-relaxed">
-                        Especialista en análisis de conflictos indígenas y aplicación de metodologías ACCP en contextos de autonomía territorial.
-                    </p>
-                </div>
-                
-                <div class="team-card rounded-3xl p-8 text-center text-white card-hover">
-                    <div class="w-24 h-24 mx-auto mb-6 bg-gradient-to-br from-blue-400 to-indigo-600 rounded-full flex items-center justify-center text-3xl font-bold">
-                        JG
-                    </div>
-                    <h3 class="text-2xl font-bold mb-2">Jose Gutierrez Contreras</h3>
-                    <p class="text-blue-200 mb-4">Co-investigador</p>
-                    <p class="text-sm text-blue-100 leading-relaxed">
-                        Experto en derecho constitucional indígena y análisis jurisprudencial de la Corte Constitucional colombiana.
-                    </p>
-                </div>
-                
-                <div class="team-card rounded-3xl p-8 text-center text-white card-hover">
-                    <div class="w-24 h-24 mx-auto mb-6 bg-gradient-to-br from-green-400 to-teal-600 rounded-full flex items-center justify-center text-3xl font-bold">
-                        AF
-                    </div>
-                    <h3 class="text-2xl font-bold mb-2">Ana Ferrer</h3>
-                    <p class="text-blue-200 mb-4">Co-investigadora</p>
-                    <p class="text-sm text-blue-100 leading-relaxed">
-                        Especialista en procesos de mediación intercultural y construcción de paz en territorios indígenas.
-                    </p>
-                </div>
-            </div>
-        </div>
-    </section>
+    
 
     <!-- Introducción al Caso -->
     <section class="py-16 px-4">
@@ -224,74 +228,7 @@
         </div>
     </section>
 
-    <!-- Navegación a las Secciones -->
-    <section class="py-16 px-4">
-        <div class="max-w-6xl mx-auto">
-            <div class="text-center mb-12">
-                <h2 class="text-4xl font-bold text-white mb-4">Explorar el Análisis</h2>
-                <p class="text-xl text-blue-200">Navega por las diferentes secciones del análisis ACCP</p>
-                <div class="w-24 h-1 bg-white mx-auto mt-4"></div>
-            </div>
-            
-            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <!-- Contexto del Conflicto -->
-                <div class="section-card rounded-3xl p-8 text-center card-hover">
-                    <div class="text-5xl mb-4">🏛️</div>
-                    <h3 class="text-xl font-bold text-gray-800 mb-4">Contexto del Conflicto</h3>
-                    <p class="text-gray-600 text-sm mb-6 leading-relaxed">
-                        Explora el trasfondo histórico, jurídico y social del conflicto Arhuaco, 
-                        incluyendo las relaciones entre actores.
-                    </p>
-                    <button onclick="window.open('contexto_conflicto_arhuaco.html', '_blank')" 
-                            class="btn-primary text-white px-6 py-3 rounded-full font-semibold w-full">
-                        Explorar Contexto
-                    </button>
-                </div>
-                
-                <!-- Mapa Interactivo -->
-                <div class="section-card rounded-3xl p-8 text-center card-hover">
-                    <div class="text-5xl mb-4">🗺️</div>
-                    <h3 class="text-xl font-bold text-gray-800 mb-4">Mapa Interactivo</h3>
-                    <p class="text-gray-600 text-sm mb-6 leading-relaxed">
-                        Visualización interactiva de los actores del conflicto y análisis 
-                        detallado de cada participante.
-                    </p>
-                    <button onclick="window.open('mapa_conflicto_arhuaco.html', '_blank')" 
-                            class="btn-primary text-white px-6 py-3 rounded-full font-semibold w-full">
-                        Ver Mapa
-                    </button>
-                </div>
-                
-                <!-- Análisis de Actores -->
-                <div class="section-card rounded-3xl p-8 text-center card-hover">
-                    <div class="text-5xl mb-4">👥</div>
-                    <h3 class="text-xl font-bold text-gray-800 mb-4">Análisis de Actores</h3>
-                    <p class="text-gray-600 text-sm mb-6 leading-relaxed">
-                        Estudio detallado de posiciones, intereses y necesidades de cada 
-                        actor según la metodología ACCP.
-                    </p>
-                    <button onclick="window.open('mapa_conflicto_arhuaco.html?page=actor-analysis', '_blank')" 
-                            class="btn-primary text-white px-6 py-3 rounded-full font-semibold w-full">
-                        Analizar Actores
-                    </button>
-                </div>
-                
-                <!-- Análisis de Causas -->
-                <div class="section-card rounded-3xl p-8 text-center card-hover">
-                    <div class="text-5xl mb-4">🔍</div>
-                    <h3 class="text-xl font-bold text-gray-800 mb-4">Análisis de Causas</h3>
-                    <p class="text-gray-600 text-sm mb-6 leading-relaxed">
-                        Identificación de causas estructurales, preguntas clave y estrategias 
-                        de intervención para la paz.
-                    </p>
-                    <button onclick="window.open('analisis_causas_conflicto.html', '_blank')" 
-                            class="btn-primary text-white px-6 py-3 rounded-full font-semibold w-full">
-                        Ver Causas
-                    </button>
-                </div>
-            </div>
-        </div>
-    </section>
+    
 
     <!-- Metodología y Características -->
     <section class="py-16 px-4">
@@ -353,8 +290,7 @@
                         <div class="text-4xl mb-4">📚</div>
                         <h3 class="text-xl font-semibold text-gray-800 mb-3">Académico</h3>
                         <p class="text-gray-600 text-sm">
-                            Desarrollado con rigor académico para la Maestría en Análisis y 
-                            Resolución de Conflictos.
+                            Desarrollado con rigor académico para la Maestría en Resolución de conflictos paz y desarrollo.
                         </p>
                     </div>
                 </div>
@@ -365,13 +301,11 @@
     <!-- Footer -->
     <footer class="py-12 px-4 text-center text-white">
         <div class="max-w-4xl mx-auto">
-            <h3 class="text-2xl font-bold mb-4">Maestría en Análisis y Resolución de Conflictos</h3>
+            <h3 class="text-2xl font-bold mb-4">Maestría en Resolución de conflictos paz y desarrollo</h3>
             <p class="text-blue-200 mb-4">
                 Aplicación de la metodología ACCP al caso Arhuaco según la Sentencia SU-419 de 2024
             </p>
-            <p class="text-sm text-blue-300">
-                Desarrollado por: Ema Yuselsy Molina Roys, Jose Gutierrez Contreras y Ana Ferrer
-            </p>
+            <p class="text-sm text-blue-300">Integrantes: Ema Yuselsy Molina Roys, Jose Gutierrez Contreras, Ana Ferrer</p>
             <div class="mt-6 text-xs text-blue-400">
                 © 2025 - Análisis ACCP Caso Arhuaco - Universidad
             </div>
@@ -394,6 +328,17 @@
             cards.forEach(card => {
                 observer.observe(card);
             });
+        });
+        // Activar enlace de navegación actual
+        document.addEventListener('DOMContentLoaded', function() {
+            const file = location.pathname.split('/').pop() || 'index.html';
+            const links = document.querySelectorAll('nav .nav-link');
+            links.forEach(l => l.classList.remove('active'));
+            const activateByHref = (ending) => {
+                const a = Array.from(links).find(l => (new URL(l.href, location.origin)).pathname.endsWith(ending));
+                if (a) a.classList.add('active');
+            };
+            if (file === '' || file === 'index.html') activateByHref('index.html');
         });
     </script>
 </body>
